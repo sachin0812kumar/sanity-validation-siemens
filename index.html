@@ -1,1 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CR Sanity Validator — Siemens GSW</title>
+<style>
+  :root {
+    --bg: #F0F4F8;
+    --surface: #FFFFFF;
+    --border: #D8E2EE;
+    --border-strong: #B8C8DC;
+    --text: #0D1B2A;
+    --text-muted: #526070;
+    --text-light: #8A9BB0;
+    --accent: #009999;
+    --accent-light: #E0F5F5;
+    --accent-dark: #007777;
+    --accent-glow: rgba(0,153,153,0.18);
+    --green: #1A8A4A;
+    --green-light: #D6F5E3;
+    --amber: #C97A00;
+    --amber-light: #FFF0CC;
+    --red: #CC2200;
+    --red-light: #FDECEA;
+    --purple: #5C35B0;
+    --purple-light: #EDE9FE;
+    --siemens-navy: #00224F;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --shadow: 0 1px 4px rgba(0,40,80,0.08), 0 1px 2px rgba(0,40,80,0.04);
+    --shadow-md: 0 4px 16px rgba(0,40,80,0.10), 0 2px 4px rgba(0,40,80,0.06);
+    --shadow-accent: 0 4px 20px rgba(0,153,153,0.18);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(160deg, #E8F0F8 0%, #F0F4F8 60%, #E4F5F5 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--siemens-navy);
+    border-bottom: 3px solid var(--accent);
+    padding: 0 2rem;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,34,79,0.25);
+  }
+  .header-inner {
+    max-width: 960px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), #00cccc);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 12px rgba(0,153,153,0.5);
+  }
+  .logo-icon svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .logo-text { font-size: 15px; font-weight: 700; color: #fff; }
+  .logo-sub  { font-size: 11px; color: rgba(255,255,255,0.5); }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .badge-env {
+    font-size: 11px; padding: 3px 10px;
+    background: rgba(0,153,153,0.25); color: #00e5e5;
+    border-radius: 20px; font-weight: 600;
+    border: 1px solid rgba(0,200,200,0.3);
+    animation: pulse-badge 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse-badge {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,200,200,0.3); }
+    50% { box-shadow: 0 0 0 4px rgba(0,200,200,0.08); }
+  }
+
+  /* ── Webhook Banner ── */
+  .webhook-banner {
+    background: linear-gradient(90deg, #003366, #004488);
+    border-bottom: 1px solid rgba(0,153,153,0.4);
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, padding 0.3s ease;
+  }
+  .webhook-banner.show { max-height: 80px; padding: 10px 2rem; }
+  .webhook-banner-inner {
+    max-width: 960px; margin: 0 auto;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .webhook-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); flex-shrink: 0;
+    animation: pulse-dot 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100%{transform:scale(1);opacity:1}
+    50%{transform:scale(1.4);opacity:0.7}
+  }
+  .webhook-text { font-size: 12px; color: rgba(255,255,255,0.85); }
+  .webhook-text strong { color: #00e5e5; }
+  .webhook-dismiss {
+    margin-left: auto; background: none; border: none;
+    color: rgba(255,255,255,0.4); cursor: pointer; font-size: 16px;
+  }
+
+  /* ── Main ── */
+  .main { max-width: 960px; margin: 0 auto; padding: 28px 1.5rem; }
+  .page-header { margin-bottom: 28px; }
+  .page-header h1 { font-size: 22px; font-weight: 600; color: var(--text); letter-spacing: -0.3px; margin-bottom: 4px; }
+  .page-header p  { font-size: 13px; color: var(--text-muted); }
+
+  /* ── Steps ── */
+  .steps {
+    display: flex; align-items: center; margin-bottom: 28px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 16px 24px;
+    box-shadow: var(--shadow-md); position: relative; overflow: hidden;
+  }
+  .steps::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), #00cccc, var(--accent));
+    background-size: 200% 100%;
+    animation: shimmer 3s linear infinite;
+  }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  .step { display: flex; align-items: center; gap: 10px; flex: 1; }
+  .step-num {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    background: var(--bg); color: var(--text-muted);
+    border: 2px solid var(--border-strong); flex-shrink: 0;
+    transition: all 0.3s cubic-bezier(.4,0,.2,1);
+  }
+  .step-label { font-size: 12px; color: var(--text-muted); font-weight: 500; transition: color 0.2s; }
+  .step.active .step-num { background: var(--accent); color: white; border-color: var(--accent); animation: step-pulse 2s ease-in-out infinite; }
+  @keyframes step-pulse { 0%,100%{box-shadow:0 0 0 4px rgba(0,153,153,0.18)}50%{box-shadow:0 0 0 8px rgba(0,153,153,0.08)} }
+  .step.active .step-label { color: var(--accent); font-weight: 600; }
+  .step.done .step-num { background: var(--green); color: white; border-color: var(--green); box-shadow: none; }
+  .step.done .step-label { color: var(--green); }
+  .step-divider { flex: 1; height: 2px; background: var(--border); margin: 0 8px; border-radius: 1px; transition: background 0.4s; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow);
+    margin-bottom: 1rem; transition: box-shadow 0.2s, transform 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), #00cccc);
+    opacity: 0; transition: opacity 0.25s;
+  }
+  .card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .card:hover::before { opacity: 1; }
+  .card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .card-header-icon { width: 32px; height: 32px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; }
+  .card-header-icon svg { width: 16px; height: 16px; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  .card-title    { font-size: 14px; font-weight: 600; color: var(--text); }
+  .card-subtitle { font-size: 12px; color: var(--text-muted); }
+  .card-body { padding: 20px; }
+
+  /* ── Webhook auto-fill indicator ── */
+  .autofill-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--accent-light); color: var(--accent-dark);
+    border: 1px solid rgba(0,153,153,0.3);
+    border-radius: 20px; font-size: 10px; font-weight: 700;
+    padding: 2px 8px; margin-left: 8px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .autofill-tag::before { content: '⚡'; }
+
+  /* ── Form ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.02em; }
+  label .req { color: var(--red); }
+  input[type=text], input[type=date], select, textarea {
+    width: 100%; padding: 9px 12px;
+    border: 1.5px solid var(--border-strong); border-radius: var(--radius);
+    font-size: 13px; color: var(--text); background: #FAFCFF;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    appearance: none;
+  }
+  input[readonly], select[disabled] {
+    background: var(--accent-light); border-color: rgba(0,153,153,0.4);
+    color: var(--accent-dark); font-weight: 500; cursor: default;
+  }
+  input:hover:not([readonly]), select:hover:not([disabled]), textarea:hover { border-color: var(--accent); background: #fff; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px var(--accent-glow); }
+  textarea { resize: vertical; min-height: 60px; }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23009999' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+
+  /* ── Change type cards ── */
+  .type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .type-card {
+    border: 1.5px solid var(--border); border-radius: var(--radius);
+    padding: 12px; cursor: pointer;
+    transition: all 0.2s cubic-bezier(.4,0,.2,1);
+    background: var(--bg); user-select: none; position: relative; overflow: hidden;
+  }
+  .type-card::after { content: '✓'; position: absolute; top: 8px; right: 10px; font-size: 11px; font-weight: 700; color: var(--accent); opacity: 0; transform: scale(0.5); transition: all 0.2s; }
+  .type-card:hover { border-color: var(--accent); background: var(--accent-light); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,153,153,0.15); }
+  .type-card.selected { border-color: var(--accent); background: var(--accent-light); box-shadow: 0 0 0 3px var(--accent-glow), var(--shadow-accent); transform: translateY(-1px); }
+  .type-card.selected::after { opacity: 1; transform: scale(1); }
+  .type-card.auto-selected { border-color: var(--green); background: var(--green-light); box-shadow: 0 0 0 3px rgba(26,138,74,0.15); }
+  .type-card.auto-selected::after { content: '⚡'; color: var(--green); opacity: 1; transform: scale(1); }
+  .type-icon { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; transition: transform 0.2s; }
+  .type-card:hover .type-icon, .type-card.selected .type-icon { transform: scale(1.1); }
+  .type-icon svg { width: 15px; height: 15px; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  .type-name { font-size: 12px; font-weight: 600; color: var(--text); }
+  .type-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 9px 18px; border-radius: var(--radius);
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    border: 1.5px solid var(--border-strong);
+    background: var(--surface); color: var(--text-muted);
+    font-family: inherit; transition: all 0.2s cubic-bezier(.4,0,.2,1);
+    display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.01em;
+  }
+  .btn:hover { background: var(--bg); color: var(--text); transform: translateY(-1px); box-shadow: var(--shadow); }
+  .btn:active { transform: translateY(0); }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), #00bbbb); color: white; border-color: var(--accent); box-shadow: 0 2px 8px rgba(0,153,153,0.3); }
+  .btn-primary:hover { background: linear-gradient(135deg, var(--accent-dark), var(--accent)); box-shadow: 0 4px 16px rgba(0,153,153,0.4); color: white; }
+  .btn-success { background: linear-gradient(135deg, var(--green), #22a85a); color: white; border-color: var(--green); box-shadow: 0 2px 8px rgba(26,138,74,0.3); }
+  .btn-success:hover { background: linear-gradient(135deg, #157a40, var(--green)); color: white; }
+  .btn-outline { background: transparent; color: var(--accent); border-color: var(--accent); }
+  .btn-outline:hover { background: var(--accent-light); color: var(--accent-dark); }
+  .btn-row { display: flex; gap: 8px; justify-content: flex-end; padding: 16px 20px; border-top: 1px solid var(--border); }
+
+  /* ── Severity badges ── */
+  .sev { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; vertical-align: middle; margin-left: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .sev-critical { background: var(--red-light); color: var(--red); border: 1px solid rgba(204,34,0,0.2); }
+  .sev-high     { background: var(--amber-light); color: var(--amber); border: 1px solid rgba(201,122,0,0.2); }
+  .sev-medium   { background: var(--accent-light); color: var(--accent-dark); border: 1px solid rgba(0,153,153,0.25); }
+  .sev-low      { background: #F0F4F8; color: var(--text-muted); border: 1px solid var(--border-strong); }
+
+  /* ── Checklist ── */
+  .check-section { margin-bottom: 1rem; }
+  .check-section-title {
+    font-size: 11px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    padding: 10px 20px 8px;
+    background: linear-gradient(90deg, #EAF4F4, var(--bg));
+    border-bottom: 1px solid var(--border); border-top: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+  }
+  .check-section-title.customer-section { background: linear-gradient(90deg, #E0F2F2, #F0FAFA); border-left-color: var(--accent); color: var(--accent-dark); }
+  .check-section-title.customer-section .cust-tag { display: inline-block; background: var(--accent); color: #fff; font-size: 9px; font-weight: 700; padding: 1px 7px; border-radius: 20px; margin-right: 6px; letter-spacing: 0.06em; vertical-align: middle; }
+  .check-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 20px; border-bottom: 1px solid var(--border);
+    transition: background 0.15s, border-left 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .check-item:hover { background: #F0FAFA; border-left-color: var(--accent); }
+  .check-item:last-child { border-bottom: none; }
+  .check-item input[type=checkbox] { width: 16px; height: 16px; margin-top: 1px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+  .check-text { flex: 1; }
+  .check-label { font-size: 13px; color: var(--text); line-height: 1.4; cursor: pointer; transition: color 0.15s; }
+  .check-hint { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+  .check-item.checked { background: linear-gradient(90deg, #EAFAF2, #F5FFFD); border-left-color: var(--green); }
+  .check-item.checked .check-label { color: var(--text-muted); text-decoration: line-through; }
+
+  /* ── Progress ── */
+  .progress-wrap { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .progress-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .progress-bar { height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+  .progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), #00cccc); transition: width 0.5s cubic-bezier(.4,0,.2,1); position: relative; overflow: hidden; }
+  .progress-fill::after { content: ''; position: absolute; top: 0; left: -100%; right: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shine 2s ease-in-out infinite; }
+  @keyframes shine { 0%{left:-100%}100%{left:200%} }
+  .progress-fill.complete { background: linear-gradient(90deg, var(--green), #22c55e); }
+
+  /* ── Metrics ── */
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1rem; }
+  .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; text-align: center; box-shadow: var(--shadow); transition: all 0.2s; position: relative; overflow: hidden; }
+  .metric::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), #00cccc); opacity: 0; transition: opacity 0.2s; }
+  .metric:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .metric:hover::after { opacity: 1; }
+  .metric-val { font-size: 22px; font-weight: 700; color: var(--text); }
+  .metric-key { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+
+  /* ── Post-back section ── */
+  .postback-section {
+    background: linear-gradient(135deg, #E8F4FF, #E0F5F5);
+    border: 1px solid rgba(0,153,153,0.3);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    margin-bottom: 1rem;
+  }
+  .postback-title { font-size: 13px; font-weight: 600; color: var(--accent-dark); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .postback-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .postback-field { display: flex; flex-direction: column; gap: 4px; }
+  .postback-label { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+
+  /* ── Submit to Freshservice button ── */
+  .btn-freshservice {
+    background: linear-gradient(135deg, #1C4E80, #2563A8);
+    color: white; border-color: #1C4E80;
+    box-shadow: 0 2px 8px rgba(28,78,128,0.3);
+  }
+  .btn-freshservice:hover { background: linear-gradient(135deg, #153A60, #1C4E80); color: white; box-shadow: 0 4px 16px rgba(28,78,128,0.4); }
+
+  /* ── Doc preview ── */
+  .doc-wrap { padding: 20px; }
+  .doc-preview { background: #001830; color: #A8D8D8; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.75; padding: 20px; border-radius: var(--radius); white-space: pre-wrap; max-height: 480px; overflow-y: auto; border: 1px solid rgba(0,153,153,0.2); box-shadow: inset 0 2px 8px rgba(0,0,0,0.3); }
+  .doc-preview::-webkit-scrollbar { width: 6px; }
+  .doc-preview::-webkit-scrollbar-track { background: #001022; }
+  .doc-preview::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+
+  /* ── Status banner ── */
+  .status-banner { display: flex; align-items: center; gap: 10px; padding: 13px 18px; border-radius: var(--radius); margin-bottom: 1rem; font-size: 13px; font-weight: 600; border-left: 4px solid; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none} }
+  .status-banner.ok   { background: var(--green-light); color: var(--green); border-left-color: var(--green); }
+  .status-banner.warn { background: var(--amber-light); color: var(--amber); border-left-color: var(--amber); }
+  .status-banner.fail { background: var(--red-light); color: var(--red); border-left-color: var(--red); }
+
+  /* ── Spinner ── */
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  /* ── Toast ── */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius); padding: 12px 16px; font-size: 13px; color: var(--text); box-shadow: var(--shadow-md); display: flex; align-items: center; gap: 10px; transform: translateY(80px); opacity: 0; transition: all 0.3s cubic-bezier(.4,0,.2,1); z-index: 999; min-width: 280px; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-icon { font-size: 16px; flex-shrink: 0; }
+
+  .hidden { display: none !important; }
+  .footer { text-align: center; padding: 2rem; font-size: 11px; color: var(--text-light); border-top: 2px solid var(--accent-light); margin-top: 2rem; background: linear-gradient(0deg, #EAF5F5, transparent); }
+
+  @media (max-width: 640px) {
+    .form-grid, .type-grid { grid-template-columns: 1fr 1fr; }
+    .metrics { grid-template-columns: 1fr 1fr; }
+    .steps { padding: 12px 16px; }
+    .step-label { display: none; }
+    .main { padding: 1rem; }
+    .header { padding: 0 1rem; }
+    .postback-row { grid-template-columns: 1fr; }
+  }
+  svg.ic { width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px;flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+      <div>
+        <div class="logo-text">Siemens GSW</div>
+        <div class="logo-sub">CR Sanity Validator · Service Operations</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="badge-env" id="modeBadge">● Manual</span>
+      <span style="font-size:11px;color:rgba(255,255,255,0.45)" id="clock"></span>
+    </div>
+  </div>
+</header>
+
+<!-- WEBHOOK BANNER — shown when triggered from Freshservice -->
+<div class="webhook-banner" id="webhookBanner">
+  <div class="webhook-banner-inner">
+    <div class="webhook-dot"></div>
+    <div class="webhook-text">
+      ⚡ Auto-triggered from <strong>Freshservice</strong> — CR details loaded automatically.
+      Change type pre-selected based on CR category. Review and complete the checklist.
+    </div>
+    <button class="webhook-dismiss" onclick="dismissBanner()">✕</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <div class="page-header">
+    <h1>
+      <svg class="ic" viewBox="0 0 24 24" style="font-size:20px;margin-right:8px;stroke:var(--accent)"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+      Post-Change Sanity Validator
+    </h1>
+    <p>Complete all sections after implementing a change request to generate your standard test evidence document.</p>
+  </div>
+
+  <!-- STEPPER -->
+  <div class="steps">
+    <div class="step active" id="s1"><div class="step-num" id="sn1">1</div><div class="step-label">CR Details</div></div>
+    <div class="step-divider"></div>
+    <div class="step" id="s2"><div class="step-num" id="sn2">2</div><div class="step-label">Sanity Checks</div></div>
+    <div class="step-divider"></div>
+    <div class="step" id="s3"><div class="step-num" id="sn3">3</div><div class="step-label">Test Document</div></div>
+  </div>
+
+  <!-- ═══ STEP 1 ═══ -->
+  <div id="step1">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon" style="background:var(--accent-light)">
+          <svg class="ic" style="stroke:var(--accent)" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <div>
+          <div class="card-title">
+            Change Request Information
+            <span class="autofill-tag hidden" id="autofillTag">Auto-filled from Freshservice</span>
+          </div>
+          <div class="card-subtitle">CR details are auto-populated when triggered from Freshservice</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Customer / Account <span class="req">*</span></label>
+            <select id="customer" onchange="onCustomerChange(this.value)">
+              <option value="">Select customer...</option>
+              <option>UKPN</option>
+              <option>NPG</option>
+              <option>SPENDCC</option>
+              <option>Acme Corp</option>
+              <option>GlobalBank Ltd</option>
+              <option>TechFlow Inc</option>
+              <option>Meridian Health</option>
+              <option>RetailMax Group</option>
+              <option>DataSec Asia</option>
+              <option>FinServ APAC</option>
+              <option>Other</option>
+            </select>
+            <div id="customerBadge" style="display:none;margin-top:8px"></div>
+          </div>
+          <div class="form-group">
+            <label>CR / Change Number <span class="req">*</span></label>
+            <input type="text" id="crNumber" placeholder="e.g. CHG0012345">
+          </div>
+          <div class="form-group">
+            <label>Implementation Date</label>
+            <input type="date" id="crDate">
+          </div>
+          <div class="form-group">
+            <label>Implemented By</label>
+            <input type="text" id="implementedBy" placeholder="Engineer / Team name">
+          </div>
+          <div class="form-group">
+            <label>Environment</label>
+            <select id="environment">
+              <option value="">Select...</option>
+              <option>Production</option>
+              <option>Pre-Production</option>
+              <option>Staging</option>
+              <option>DR / Failover</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Risk Level</label>
+            <select id="crRisk">
+              <option value="">Select...</option>
+              <option>Low</option>
+              <option>Medium</option>
+              <option>High</option>
+              <option>Critical</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Change Description</label>
+            <textarea id="crDesc" placeholder="Brief description of what was changed..."></textarea>
+          </div>
+
+          <!-- Hidden field to store Freshservice ticket ID for post-back -->
+          <input type="hidden" id="fsTicketId">
+          <input type="hidden" id="fsApiKey">
+          <input type="hidden" id="fsDomain">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon" style="background:var(--purple-light)">
+          <svg class="ic" style="stroke:var(--purple)" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Change Type <span style="font-size:12px;font-weight:400;color:var(--text-muted)">— select all that apply</span></div>
+          <div class="card-subtitle" id="typeSubtitle">Select change types to generate the relevant sanity checklist</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="type-grid">
+          <div class="type-card" data-type="patching" onclick="toggleType(this)">
+            <div class="type-icon" style="background:#FEF3C7"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#D97706;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <div class="type-name">Patching</div><div class="type-desc">OS / app patches</div>
+          </div>
+          <div class="type-card" data-type="integration" onclick="toggleType(this)">
+            <div class="type-icon" style="background:var(--purple-light)"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--purple);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></div>
+            <div class="type-name">Integration</div><div class="type-desc">API / connector</div>
+          </div>
+          <div class="type-card" data-type="functionality" onclick="toggleType(this)">
+            <div class="type-icon" style="background:var(--accent-light)"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg></div>
+            <div class="type-name">Functionality</div><div class="type-desc">Feature / config</div>
+          </div>
+          <div class="type-card" data-type="infra" onclick="toggleType(this)">
+            <div class="type-icon" style="background:var(--green-light)"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--green);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div>
+            <div class="type-name">Infrastructure</div><div class="type-desc">Network / server</div>
+          </div>
+          <div class="type-card" data-type="database" onclick="toggleType(this)">
+            <div class="type-icon" style="background:#FEE2E2"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#DC2626;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+            <div class="type-name">Database</div><div class="type-desc">Schema / migration</div>
+          </div>
+          <div class="type-card" data-type="security" onclick="toggleType(this)">
+            <div class="type-icon" style="background:var(--green-light)"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--green);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+            <div class="type-name">Security</div><div class="type-desc">ACL / certs / auth</div>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goStep(2)">
+          Next: Sanity Checklist
+          <svg class="ic" style="stroke:white" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 2 ═══ -->
+  <div id="step2" class="hidden">
+    <div class="metrics" id="checkMetrics"></div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon" style="background:var(--accent-light)">
+          <svg class="ic" style="stroke:var(--accent)" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Post-Change Sanity Checklist</div>
+          <div class="card-subtitle">Tick each item as you validate. Customer-specific checks are highlighted.</div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-top">
+          <span style="font-size:12px;color:var(--text-muted)" id="progressLabel">0 of 0 checks completed</span>
+          <span style="font-size:12px;font-weight:600;color:var(--accent)" id="progressPct">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+      <div id="checklistArea"></div>
+      <div class="btn-row">
+        <button class="btn" onclick="goStep(1)"><svg class="ic" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back</button>
+        <button class="btn btn-outline" onclick="selectAll()">Select All</button>
+        <button class="btn btn-primary" onclick="goStep(3)">
+          Generate Document
+          <svg class="ic" style="stroke:white" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 3 ═══ -->
+  <div id="step3" class="hidden">
+    <div id="statusBanner"></div>
+    <div class="metrics" id="summaryMetrics"></div>
+
+    <!-- Post back to Freshservice panel -->
+    <div class="postback-section" id="postbackSection" style="display:none">
+      <div class="postback-title">
+        <svg class="ic" style="stroke:var(--accent-dark)" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Post sanity note directly to Freshservice CR
+      </div>
+      <div class="postback-row">
+        <div class="postback-field">
+          <div class="postback-label">Freshservice Domain</div>
+          <input type="text" id="fsDomainInput" placeholder="yourcompany.freshservice.com">
+        </div>
+        <div class="postback-field">
+          <div class="postback-label">API Key</div>
+          <input type="text" id="fsApiKeyInput" placeholder="Paste your Freshservice API key">
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+        <button class="btn btn-freshservice" onclick="postToFreshservice()" id="postBtn">
+          <svg class="ic" style="stroke:white" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+          <span id="postBtnLabel">Post Note to CR</span>
+          <span class="spinner" id="postSpinner"></span>
+        </button>
+        <span style="font-size:11px;color:var(--text-muted)">Posts as a private note on ticket #<span id="postbackCrId">—</span></span>
+      </div>
+      <div id="postbackResult" style="margin-top:8px;font-size:12px;display:none"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon" style="background:var(--green-light)">
+          <svg class="ic" style="stroke:var(--green)" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Sanity Test Evidence Document</div>
+          <div class="card-subtitle">Copy or download to attach in your ITSM tool — or post directly above</div>
+        </div>
+      </div>
+      <div class="doc-wrap">
+        <pre class="doc-preview" id="docContent"></pre>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="goStep(2)"><svg class="ic" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back</button>
+        <button class="btn btn-outline" onclick="copyDoc()" id="copyBtn">
+          <svg class="ic" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy to Clipboard
+        </button>
+        <button class="btn btn-success" onclick="downloadDoc()">
+          <svg class="ic" style="stroke:white" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download .txt
+        </button>
+        <button class="btn btn-primary" onclick="newCR()">
+          <svg class="ic" style="stroke:white" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New CR
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <strong style="color:var(--accent)">Siemens GSW</strong> · CR Sanity Validator · Service Operations ·
+  All data processed locally in your browser — nothing is transmitted externally except direct Freshservice API calls you authorise
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✅</span>
+  <span id="toastMsg">Done!</span>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   CHECKLIST DATA
+══════════════════════════════════════════════════════ */
+const COMMON = {
+  "Common — All Customers & Change Types": [
+    {id:"c1", text:"Customer / stakeholder acknowledged change completion", sev:"critical"},
+    {id:"c2", text:"No P1 / P2 incidents raised in the first 30 minutes post-implementation", sev:"critical"},
+    {id:"c3", text:"Change record updated with actual implementation outcome and end time", sev:"high"},
+    {id:"c4", text:"Monitoring dashboards verified — no unexpected alerts firing", sev:"high"},
+    {id:"c5", text:"Rollback plan confirmed as still available and viable (if needed)", sev:"medium"},
+    {id:"c6", text:"Post-implementation review (PIR) scheduled if required by change policy", sev:"low"},
+  ]
+};
+
+const CUSTOMER_CHECKS = {
+  "UKPN": {
+    "DCC & HSM Validation": [
+      {id:"ukpn_c1", text:"DCC Connection — Validate DCC connection by executing SR 7.4. Healthy if SR requests succeed.", sev:"critical", hint:"Execute SR 7.4 on the DSG server and confirm successful response"},
+      {id:"ukpn_c2", text:"HSM Check — Validate availability of HSM modules by running ./enquiry on the DSG server.", sev:"critical", hint:"All HSM modules should respond as available"},
+    ],
+    "SCPP Validation": [
+      {id:"ukpn_c3", text:"SCPP (UKPN) — Validate the SCPP reads and corresponding Jobs are processing correctly.", sev:"high", hint:"Check SCPP job queue and verify reads are being picked up"},
+    ],
+    "ACE Integration": [
+      {id:"ukpn_c4", text:"UKPN – ACE Integration — Validate processing of business ping requests/responses through ACE.", sev:"critical", hint:"Trigger test business ping and confirm request/response flow through ACE"},
+    ],
+  },
+  "NPG": {
+    "DCC & HSM Validation": [
+      {id:"npg_c1", text:"DCC Connection — Validate DCC connection by executing SR 7.4. Healthy if SR requests succeed.", sev:"critical", hint:"Execute SR 7.4 on the DSG server and confirm successful response"},
+      {id:"npg_c2", text:"HSM Check — Validate availability of HSM modules by running ./enquiry on the DSG server.", sev:"critical", hint:"All HSM modules should respond as available"},
+    ],
+    "IF Dashboard": [
+      {id:"npg_c3", text:"NPG – IF Dashboard — Verify the IF Customer Event Table for AD1 alerts being captured as expected.", sev:"high", hint:"Open IF dashboard → Customer Event Table → confirm AD1 alert entries are present"},
+    ],
+    "SCPP Validation": [
+      {id:"npg_c4", text:"SCPP (NPG) — Validate the SCPP reads and corresponding Jobs are processing correctly.", sev:"high", hint:"Check SCPP job queue and verify reads are being picked up"},
+    ],
+    "Integration Checks": [
+      {id:"npg_c5", text:"NPG & SPEN – Business Ping Integration — Validate end-to-end processing for NPG integration.", sev:"critical", hint:"Trigger test business ping for NPG and confirm full end-to-end request/response"},
+      {id:"npg_c6", text:"NPG – BeetBox Integration — Validate voltage request and response processing via BeetBox.", sev:"high", hint:"Send test voltage request via BeetBox and confirm correct response"},
+    ],
+  },
+  "SPENDCC": {
+    "DCC & HSM Validation": [
+      {id:"spen_c1", text:"DCC Connection — Validate DCC connection by executing SR 7.4. Healthy if SR requests succeed.", sev:"critical", hint:"Execute SR 7.4 on the DSG server and confirm successful response"},
+      {id:"spen_c2", text:"HSM Check — Validate availability of HSM modules by running ./enquiry on the DSG server.", sev:"critical", hint:"All HSM modules should respond as available"},
+    ],
+    "Integration Checks": [
+      {id:"spen_c3", text:"NPG & SPEN – Business Ping Integration — Validate end-to-end processing for SPEN integration.", sev:"critical", hint:"Trigger test business ping for SPEN and confirm full end-to-end request/response"},
+    ],
+  },
+};
+
+const CHECKS = {
+  patching: {
+    "System Health": [
+      {id:"p1", text:"All patched services / daemons restarted successfully", sev:"critical", hint:"Verify via service status or process manager"},
+      {id:"p2", text:"Patch version confirmed on all target nodes", sev:"critical", hint:"Run uname -r / winver / rpm -qa on each node"},
+      {id:"p3", text:"Patch applied to every node in cluster or load balancer pool", sev:"critical"},
+      {id:"p4", text:"No unexpected CPU or memory spikes post-patch", sev:"high", hint:"Compare metrics against pre-change baseline"},
+      {id:"p5", text:"Disk space sufficient — patch artefacts not filling volumes", sev:"medium"},
+    ],
+    "Application Validation": [
+      {id:"p6", text:"Application starts and responds without errors after restart", sev:"critical"},
+      {id:"p7", text:"Login and authentication flows tested end-to-end", sev:"critical"},
+      {id:"p8", text:"Core business transaction executed successfully", sev:"high"},
+      {id:"p9", text:"Error / application logs show no new critical exceptions", sev:"high", hint:"Check logs for at least 30 minutes post-change"},
+      {id:"p10", text:"Scheduled jobs and cron tasks running as expected", sev:"medium"},
+    ],
+    "Monitoring & Alerting": [
+      {id:"p11", text:"Performance dashboards show baseline metrics", sev:"medium"},
+      {id:"p12", text:"Alert thresholds not breached by patch activity", sev:"medium"},
+    ]
+  },
+  integration: {
+    "Connectivity": [
+      {id:"i1", text:"End-to-end connectivity confirmed between integrated systems", sev:"critical"},
+      {id:"i2", text:"API health check endpoint returns HTTP 200 OK", sev:"critical"},
+      {id:"i3", text:"Authentication tokens / API keys valid and not expired", sev:"critical"},
+      {id:"i4", text:"SSL/TLS certificates valid on all integration endpoints", sev:"high"},
+      {id:"i5", text:"Firewall / security group rules permit traffic on required ports", sev:"high"},
+    ],
+    "Data Flow": [
+      {id:"i6", text:"Sample payload sent successfully and correct response received", sev:"critical", hint:"Test with both valid and edge-case payloads"},
+      {id:"i7", text:"Data mapping and field transformations produce correct output", sev:"high"},
+      {id:"i8", text:"Error handling tested — invalid payload returns expected error code", sev:"high"},
+      {id:"i9", text:"Retry / dead-letter queue mechanism functioning on transient failures", sev:"medium"},
+      {id:"i10", text:"Bulk / volume test: large message batch processed without queue backup", sev:"medium"},
+    ],
+    "Monitoring": [
+      {id:"i11", text:"Integration monitoring dashboard showing live traffic", sev:"medium"},
+      {id:"i12", text:"Failure alert triggered when integration is stopped (simulated)", sev:"medium"},
+    ]
+  },
+  functionality: {
+    "Feature Validation": [
+      {id:"f1", text:"New or modified feature works as per change specification", sev:"critical"},
+      {id:"f2", text:"All affected user roles and permission levels tested", sev:"critical"},
+      {id:"f3", text:"Edge cases documented in the CR tested successfully", sev:"high"},
+      {id:"f4", text:"No regression detected in adjacent features", sev:"high"},
+      {id:"f5", text:"UI changes render correctly across supported browsers / devices", sev:"medium"},
+    ],
+    "Data Integrity": [
+      {id:"f6", text:"Existing data unaffected by the configuration or code change", sev:"critical"},
+      {id:"f7", text:"New data entries saved, retrieved, and displayed correctly", sev:"high"},
+      {id:"f8", text:"Report outputs match expected values after change", sev:"high"},
+    ],
+    "User Experience": [
+      {id:"f9", text:"User notifications and email triggers firing correctly", sev:"medium"},
+      {id:"f10", text:"Session handling and timeout behaviour correct post-change", sev:"medium"},
+    ]
+  },
+  infra: {
+    "Network & Availability": [
+      {id:"n1", text:"All servers and VMs reachable via ping / health check", sev:"critical"},
+      {id:"n2", text:"Load balancer health checks passing for all nodes in pool", sev:"critical"},
+      {id:"n3", text:"DNS resolution correct for all affected hostnames", sev:"high"},
+      {id:"n4", text:"Failover tested: traffic routes correctly when one node removed", sev:"high"},
+    ],
+    "Performance": [
+      {id:"n5", text:"Response latency within agreed SLA thresholds", sev:"high"},
+      {id:"n6", text:"Throughput test confirms bandwidth not degraded", sev:"medium"},
+      {id:"n7", text:"Storage volumes have sufficient free space (>20%)", sev:"medium"},
+    ],
+    "Configuration": [
+      {id:"n8", text:"Infrastructure config matches change spec (IaC diff reviewed)", sev:"high"},
+      {id:"n9", text:"Backup jobs running correctly on new / modified infrastructure", sev:"high"},
+    ]
+  },
+  database: {
+    "Schema & Data": [
+      {id:"d1", text:"Schema migration applied successfully to all target environments", sev:"critical"},
+      {id:"d2", text:"Record / row counts match expected values post-migration", sev:"critical"},
+      {id:"d3", text:"Foreign key constraints and indexes intact", sev:"high"},
+      {id:"d4", text:"Sample queries return correct results", sev:"high"},
+      {id:"d5", text:"No data loss confirmed (compare pre/post counts or checksums)", sev:"critical"},
+    ],
+    "Performance": [
+      {id:"d6", text:"Slow query log shows no new long-running queries introduced", sev:"high"},
+      {id:"d7", text:"Database connections within pool limits", sev:"medium"},
+      {id:"d8", text:"Replication lag within acceptable thresholds", sev:"high"},
+    ],
+    "Backup & Recovery": [
+      {id:"d9", text:"Database backup taken immediately after change completion", sev:"critical"},
+      {id:"d10", text:"Restore from backup tested in non-production environment", sev:"high"},
+    ]
+  },
+  security: {
+    "Access Control": [
+      {id:"s1", text:"New ACL / permission rules applied and validated", sev:"critical"},
+      {id:"s2", text:"Revoked access confirmed — affected user/service cannot authenticate", sev:"critical"},
+      {id:"s3", text:"Privileged account access restricted to authorised roles only", sev:"critical"},
+    ],
+    "Certificates & Authentication": [
+      {id:"s4", text:"New certificate validity, expiry dates, and chain confirmed", sev:"high"},
+      {id:"s5", text:"Old/replaced certificate revoked in all relevant stores", sev:"high"},
+      {id:"s6", text:"MFA and SSO flow tested end-to-end", sev:"high"},
+    ],
+    "Audit & Compliance": [
+      {id:"s7", text:"Security event logs capturing activity under new policy", sev:"high"},
+      {id:"s8", text:"SIEM / SOAR alerts updated to reflect security change", sev:"medium"},
+      {id:"s9", text:"Vulnerability scan initiated if required by change policy", sev:"medium"},
+    ]
+  }
+};
+
+/* ══ Freshservice change type mapping ══
+   Maps Freshservice category/change_type values → our type keys */
+const FS_TYPE_MAP = {
+  'patch': 'patching', 'patching': 'patching', 'os update': 'patching', 'security patch': 'patching',
+  'integration': 'integration', 'api': 'integration', 'connector': 'integration', 'middleware': 'integration',
+  'functionality': 'functionality', 'feature': 'functionality', 'configuration': 'functionality', 'config': 'functionality',
+  'infrastructure': 'infra', 'network': 'infra', 'server': 'infra', 'cloud': 'infra',
+  'database': 'database', 'db': 'database', 'schema': 'database', 'migration': 'database',
+  'security': 'security', 'access': 'security', 'certificate': 'security', 'cert': 'security',
+};
+
+/* ══ State ══ */
+let selectedTypes = [];
+let checkState    = {};
+let currentStep   = 1;
+let docText       = '';
+let isWebhookMode = false;
+
+/* ══════════════════════════════════════
+   WEBHOOK AUTO-FILL
+   When Freshservice fires the webhook, it appends URL params:
+   ?cr=CHG001&customer=UKPN&type=patching&env=Production&
+     desc=Description&ticketid=1234&domain=co.freshservice.com
+══════════════════════════════════════ */
+function readWebhookParams() {
+  const params = new URLSearchParams(window.location.search);
+
+  const cr       = params.get('cr');
+  const customer = params.get('customer');
+  const type     = params.get('type');       // comma-separated e.g. "patching,integration"
+  const env      = params.get('env');
+  const desc     = params.get('desc');
+  const risk     = params.get('risk');
+  const ticketid = params.get('ticketid');
+  const domain   = params.get('domain');
+  const eng      = params.get('engineer');
+
+  if (!cr && !customer) return; // not a webhook call — manual mode
+
+  isWebhookMode = true;
+
+  // Show webhook banner
+  document.getElementById('webhookBanner').classList.add('show');
+  document.getElementById('modeBadge').textContent = '⚡ Freshservice';
+  document.getElementById('modeBadge').style.background = 'rgba(26,138,74,0.3)';
+  document.getElementById('modeBadge').style.color = '#6ee7b7';
+
+  // Show autofill tag
+  document.getElementById('autofillTag').classList.remove('hidden');
+
+  // Fill CR details
+  if (cr)       { const el = document.getElementById('crNumber'); el.value = cr; el.setAttribute('readonly',''); }
+  if (eng)      { const el = document.getElementById('implementedBy'); el.value = eng; }
+  if (desc)     { const el = document.getElementById('crDesc'); el.value = decodeURIComponent(desc); }
+  if (risk)     { document.getElementById('crRisk').value = risk; }
+
+  // Fill environment
+  if (env) {
+    const envEl = document.getElementById('environment');
+    [...envEl.options].forEach(o => { if (o.text.toLowerCase().includes(env.toLowerCase())) envEl.value = o.value; });
+  }
+
+  // Fill customer and trigger badge
+  if (customer) {
+    const custEl = document.getElementById('customer');
+    [...custEl.options].forEach(o => { if (o.value.toUpperCase() === customer.toUpperCase()) custEl.value = o.value; });
+    onCustomerChange(custEl.value);
+  }
+
+  // Auto-select change types from webhook
+  if (type) {
+    const types = type.split(',').map(t => t.trim().toLowerCase());
+    types.forEach(t => {
+      const mapped = FS_TYPE_MAP[t] || t;
+      const card = document.querySelector(`.type-card[data-type="${mapped}"]`);
+      if (card && !selectedTypes.includes(mapped)) {
+        card.classList.add('selected', 'auto-selected');
+        selectedTypes.push(mapped);
+      }
+    });
+    if (selectedTypes.length > 0) {
+      document.getElementById('typeSubtitle').textContent =
+        `⚡ ${selectedTypes.length} type(s) auto-selected from Freshservice CR category`;
+    }
+  }
+
+  // Store Freshservice connection details for post-back
+  if (ticketid) { document.getElementById('fsTicketId').value = ticketid; document.getElementById('postbackCrId').textContent = ticketid; }
+  if (domain)   { document.getElementById('fsDomain').value = domain; document.getElementById('fsDomainInput').value = domain; }
+}
+
+function dismissBanner() {
+  document.getElementById('webhookBanner').classList.remove('show');
+}
+
+/* ══ Clock ══ */
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleString(undefined, {dateStyle:'medium', timeStyle:'medium'});
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+document.getElementById('crDate').valueAsDate = new Date();
+
+/* ══ Customer badge ══ */
+function onCustomerChange(val) {
+  const badge = document.getElementById('customerBadge');
+  if (!val) { badge.style.display = 'none'; return; }
+  const hasSpecific = !!CUSTOMER_CHECKS[val];
+  const count = hasSpecific ? Object.values(CUSTOMER_CHECKS[val]).flat().length : 0;
+  badge.style.display = 'block';
+  badge.innerHTML = hasSpecific
+    ? `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--accent-light);border:1px solid rgba(0,153,153,0.3);border-radius:var(--radius);animation:fadeIn 0.25s ease">
+        <svg class="ic" style="stroke:var(--accent);flex-shrink:0" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        <span style="font-size:12px;color:var(--accent-dark);font-weight:600">${val} — ${count} customer-specific sanity checks will be added</span>
+      </div>`
+    : `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#FFF8E6;border:1px solid rgba(201,122,0,0.3);border-radius:var(--radius)">
+        <svg class="ic" style="stroke:var(--amber);flex-shrink:0" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span style="font-size:12px;color:var(--amber);font-weight:500">No customer-specific checks for ${val} — common checks apply</span>
+      </div>`;
+}
+
+/* ══ Toggle change type ══ */
+function toggleType(el) {
+  const t = el.dataset.type;
+  el.classList.remove('auto-selected');
+  el.classList.toggle('selected');
+  if (selectedTypes.includes(t)) selectedTypes = selectedTypes.filter(x => x !== t);
+  else selectedTypes.push(t);
+}
+
+/* ══ Step navigation ══ */
+function goStep(n) {
+  if (n === 2) {
+    if (!document.getElementById('customer').value) { showToast('error', 'Please select a customer / account.'); return; }
+    if (!document.getElementById('crNumber').value.trim()) { showToast('error', 'Please enter the CR / Change number.'); return; }
+    if (selectedTypes.length === 0) { showToast('error', 'Please select at least one change type.'); return; }
+    buildChecklist();
+  }
+  if (n === 3) buildDoc();
+
+  document.getElementById('step' + currentStep).classList.add('hidden');
+  currentStep = n;
+  document.getElementById('step' + n).classList.remove('hidden');
+
+  [1,2,3].forEach((i) => {
+    const el = document.getElementById('s' + i);
+    const sn = document.getElementById('sn' + i);
+    el.className = 'step';
+    sn.innerHTML = i;
+    if (i < n)  { el.classList.add('done'); sn.innerHTML = '<svg class="ic" style="stroke:white;width:12px;height:12px" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>'; }
+    else if (i === n) el.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+/* ══ Build checklist ══ */
+function buildChecklist() {
+  checkState = {};
+  const customer = document.getElementById('customer').value;
+  const groups = {};
+  Object.assign(groups, COMMON);
+  if (customer && CUSTOMER_CHECKS[customer]) {
+    Object.entries(CUSTOMER_CHECKS[customer]).forEach(([section, items]) => { groups[`${customer} — ${section}`] = items; });
+  }
+  selectedTypes.forEach(t => { if (CHECKS[t]) Object.assign(groups, CHECKS[t]); });
+
+  let total = 0, critical = 0, high = 0;
+  let html = '';
+  Object.entries(groups).forEach(([grp, items]) => {
+    const isCust = customer && grp.startsWith(customer + ' —');
+    const titleClass = isCust ? 'check-section-title customer-section' : 'check-section-title';
+    const titleHTML  = isCust
+      ? `<span class="cust-tag">CUSTOMER</span>${grp.replace(customer + ' — ', '')}`
+      : grp;
+    html += `<div class="check-section"><div class="${titleClass}">${titleHTML}</div>`;
+    items.forEach(item => {
+      checkState[item.id] = false;
+      const sc = item.sev==='critical'?'sev-critical':item.sev==='high'?'sev-high':item.sev==='medium'?'sev-medium':'sev-low';
+      const hint = item.hint ? `<div class="check-hint">💡 ${item.hint}</div>` : '';
+      html += `<div class="check-item" id="row-${item.id}">
+        <input type="checkbox" id="${item.id}" onchange="tickCheck('${item.id}',this.checked)">
+        <div class="check-text">
+          <label class="check-label" for="${item.id}">${item.text} <span class="sev ${sc}">${item.sev}</span></label>
+          ${hint}
+        </div>
+      </div>`;
+      total++;
+      if (item.sev==='critical') critical++;
+      else if (item.sev==='high') high++;
+    });
+    html += '</div>';
+  });
+
+  document.getElementById('checklistArea').innerHTML = html;
+  updateProgress();
+  document.getElementById('checkMetrics').innerHTML = `
+    <div class="metric"><div class="metric-val">${total}</div><div class="metric-key">Total Checks</div></div>
+    <div class="metric"><div class="metric-val" style="color:var(--red)">${critical}</div><div class="metric-key">Critical</div></div>
+    <div class="metric"><div class="metric-val" style="color:var(--amber)">${high}</div><div class="metric-key">High</div></div>
+    <div class="metric"><div class="metric-val">${selectedTypes.length}</div><div class="metric-key">Change Types</div></div>`;
+}
+
+function tickCheck(id, val) {
+  checkState[id] = val;
+  const row = document.getElementById('row-' + id);
+  if (val) row.classList.add('checked'); else row.classList.remove('checked');
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = Object.keys(checkState).length;
+  const done  = Object.values(checkState).filter(Boolean).length;
+  const pct   = total ? Math.round(done/total*100) : 0;
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('progressFill').className = 'progress-fill' + (pct===100?' complete':'');
+  document.getElementById('progressLabel').textContent = `${done} of ${total} checks completed`;
+  document.getElementById('progressPct').textContent = pct+'%';
+}
+
+function selectAll() {
+  Object.keys(checkState).forEach(id => {
+    checkState[id] = true;
+    const el = document.getElementById(id); if (el) el.checked = true;
+    const row = document.getElementById('row-'+id); if (row) row.classList.add('checked');
+  });
+  updateProgress();
+}
+
+/* ══ Build document ══ */
+function buildDoc() {
+  const customer = document.getElementById('customer').value;
+  const crNum    = document.getElementById('crNumber').value.trim();
+  const crDate   = document.getElementById('crDate').value;
+  const eng      = document.getElementById('implementedBy').value || 'N/A';
+  const desc     = document.getElementById('crDesc').value || '—';
+  const env      = document.getElementById('environment').value || 'N/A';
+  const risk     = document.getElementById('crRisk').value || 'N/A';
+  const types    = selectedTypes.join(', ');
+  const genTime  = new Date().toLocaleString();
+
+  const groups = {};
+  Object.assign(groups, COMMON);
+  if (customer && CUSTOMER_CHECKS[customer]) {
+    Object.entries(CUSTOMER_CHECKS[customer]).forEach(([section, items]) => { groups[`${customer} — ${section}`] = items; });
+  }
+  selectedTypes.forEach(t => { if (CHECKS[t]) Object.assign(groups, CHECKS[t]); });
+
+  const total  = Object.keys(checkState).length;
+  const done   = Object.values(checkState).filter(Boolean).length;
+  const failed = total - done;
+  const pct    = total ? Math.round(done/total*100) : 0;
+
+  const statusStr = pct===100 ? 'ALL CHECKS PASSED — CR READY TO CLOSE'
+    : pct>=80 ? 'MOSTLY COMPLETE — PENDING ITEMS REMAIN'
+    : 'INCOMPLETE — REVIEW REQUIRED BEFORE CLOSING';
+
+  let doc = `
+╔══════════════════════════════════════════════════════════════╗
+║          POST-CHANGE SANITY TEST DOCUMENT                    ║
+║          Siemens GSW · Service Operations Practice           ║
+╚══════════════════════════════════════════════════════════════╝
+Document Generated : ${genTime}
+Triggered Via      : ${isWebhookMode ? 'Freshservice Webhook (automated)' : 'Manual entry'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CHANGE DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Customer / Account  : ${customer}
+Change Request #    : ${crNum}
+Change Type(s)      : ${types}
+Environment         : ${env}
+Risk Level          : ${risk}
+Implementation Date : ${crDate}
+Implemented By      : ${eng}
+Description         :
+  ${desc}
+
+SANITY VALIDATION SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Total Checks        : ${total}
+Passed              : ${done}
+Failed / Pending    : ${failed}
+Completion Rate     : ${pct}%
+Overall Status      : ${pct===100?'✅':pct>=80?'⚠️ ':'❌'} ${statusStr}
+
+══════════════════════════════════════════════════════════════
+DETAILED CHECKLIST RESULTS
+══════════════════════════════════════════════════════════════
+`;
+
+  Object.entries(groups).forEach(([grp, items]) => {
+    doc += `\n▸ ${grp}\n${'─'.repeat(60)}\n`;
+    items.forEach(item => {
+      const tick   = checkState[item.id] ? '✅ PASS' : '❌ FAIL';
+      const sevTag = `[${item.sev.toUpperCase()}]`;
+      doc += `  ${tick}  ${sevTag.padEnd(11)} ${item.text}\n`;
+    });
+  });
+
+  doc += `
+══════════════════════════════════════════════════════════════
+OBSERVATIONS & NOTES
+══════════════════════════════════════════════════════════════
+(Add any deviations, observations, or customer comments here)
+
+
+
+
+══════════════════════════════════════════════════════════════
+SIGN-OFF
+══════════════════════════════════════════════════════════════
+Validated By        : ________________________________
+Validation Date     : ________________________________
+Customer Sign-off   : ________________________________
+CR Closure Approved : ________________________________
+
+══════════════════════════════════════════════════════════════
+END OF DOCUMENT — ${crNum} — ${customer}
+══════════════════════════════════════════════════════════════`;
+
+  docText = doc.trim();
+  document.getElementById('docContent').textContent = docText;
+  window._crNum = crNum;
+
+  const bannerClass = pct===100?'ok':pct>=80?'warn':'fail';
+  const bannerText  = pct===100
+    ? '✅ All checks passed — change is verified and ready to close.'
+    : pct>=80 ? `⚠️  ${failed} check(s) still pending. Resolve before closing the CR.`
+    : `❌ ${failed} check(s) incomplete. Do not close CR until resolved.`;
+  document.getElementById('statusBanner').innerHTML = `<div class="status-banner ${bannerClass}">${bannerText}</div>`;
+
+  document.getElementById('summaryMetrics').innerHTML = `
+    <div class="metric"><div class="metric-val" style="color:${pct===100?'var(--green)':pct>=80?'var(--amber)':'var(--red)'}">${pct}%</div><div class="metric-key">Completion</div></div>
+    <div class="metric"><div class="metric-val" style="color:var(--green)">${done}</div><div class="metric-key">Passed</div></div>
+    <div class="metric"><div class="metric-val" style="color:${failed>0?'var(--red)':'var(--green)'}">${failed}</div><div class="metric-key">Pending</div></div>
+    <div class="metric"><div class="metric-val">${total}</div><div class="metric-key">Total</div></div>`;
+
+  // Show post-back section if we have a ticket ID
+  const ticketId = document.getElementById('fsTicketId').value;
+  if (ticketId || isWebhookMode) {
+    document.getElementById('postbackSection').style.display = 'block';
+  }
+}
+
+/* ══════════════════════════════════════
+   POST BACK TO FRESHSERVICE via API
+══════════════════════════════════════ */
+async function postToFreshservice() {
+  const domain   = document.getElementById('fsDomainInput').value.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
+  const apiKey   = document.getElementById('fsApiKeyInput').value.trim();
+  const ticketId = document.getElementById('fsTicketId').value || document.getElementById('crNumber').value.replace(/\D/g,'');
+
+  if (!domain)   { showToast('error', 'Please enter your Freshservice domain.'); return; }
+  if (!apiKey)   { showToast('error', 'Please enter your Freshservice API key.'); return; }
+  if (!ticketId) { showToast('error', 'No ticket ID found. Make sure CR number is set.'); return; }
+
+  const btn     = document.getElementById('postBtn');
+  const label   = document.getElementById('postBtnLabel');
+  const spinner = document.getElementById('postSpinner');
+  const result  = document.getElementById('postbackResult');
+
+  btn.disabled          = true;
+  label.style.display   = 'none';
+  spinner.style.display = 'inline-block';
+  result.style.display  = 'none';
+
+  // Build the note body as HTML for Freshservice
+  const noteBody = buildFreshserviceNoteHTML();
+  const credentials = btoa(apiKey + ':X');
+
+  try {
+    // NOTE: Direct API calls from browser are blocked by CORS on Freshservice.
+    // In production use the Freshservice Workflow Automator webhook to receive
+    // the completed doc back, OR use a small proxy/serverless function.
+    // For testing, this uses the fetch approach which works via CORS proxy or same-origin.
+
+    const resp = await fetch(`https://${domain}/api/v2/changes/${ticketId}/notes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${credentials}`,
+      },
+      body: JSON.stringify({ body: noteBody, private: true }),
+    });
+
+    if (resp.ok) {
+      result.style.display = 'block';
+      result.innerHTML = `<span style="color:var(--green);font-weight:600">✅ Sanity note posted successfully to CR #${ticketId} as a private note.</span>`;
+      showToast('success', '✅ Sanity note posted to Freshservice!');
+    } else {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.description || `HTTP ${resp.status}`);
+    }
+  } catch(e) {
+    result.style.display = 'block';
+    result.innerHTML = `<span style="color:var(--amber);font-weight:500">⚠️ Direct post blocked by browser CORS policy. Use the copy button and paste into Freshservice, or set up a CORS proxy. Error: ${e.message}</span>`;
+    showToast('warn', 'CORS blocked — copy document instead');
+  } finally {
+    btn.disabled          = false;
+    label.style.display   = 'inline';
+    spinner.style.display = 'none';
+  }
+}
+
+function buildFreshserviceNoteHTML() {
+  const customer = document.getElementById('customer').value;
+  const crNum    = document.getElementById('crNumber').value;
+  const types    = selectedTypes.join(', ');
+  const total    = Object.keys(checkState).length;
+  const done     = Object.values(checkState).filter(Boolean).length;
+  const pct      = total ? Math.round(done/total*100) : 0;
+  const failed   = total - done;
+  const genTime  = new Date().toLocaleString();
+
+  const groups = {};
+  Object.assign(groups, COMMON);
+  if (customer && CUSTOMER_CHECKS[customer]) {
+    Object.entries(CUSTOMER_CHECKS[customer]).forEach(([s,i]) => { groups[`${customer} — ${s}`] = i; });
+  }
+  selectedTypes.forEach(t => { if (CHECKS[t]) Object.assign(groups, CHECKS[t]); });
+
+  let rows = '';
+  Object.entries(groups).forEach(([grp, items]) => {
+    const isCust = customer && grp.startsWith(customer + ' —');
+    rows += `<tr><td colspan="3" style="background:${isCust?'#D0EEE8':'#E0F0F0'};font-weight:bold;font-size:11px;padding:6px 10px;color:${isCust?'#007755':'#006666'};border-top:2px solid #009999">${grp}</td></tr>`;
+    items.forEach(item => {
+      const pass = checkState[item.id];
+      const sevColor = item.sev==='critical'?'#CC2200':item.sev==='high'?'#C97A00':'#007777';
+      rows += `<tr style="background:${pass?'#F0FBF5':'#FFFBF0'}">
+        <td style="padding:5px 10px;font-size:14px;width:32px;text-align:center">${pass?'✅':'❌'}</td>
+        <td style="padding:5px 10px;font-size:12px;color:#0D1B2A">${item.text}</td>
+        <td style="padding:5px 10px;font-size:11px;font-weight:700;color:${sevColor};white-space:nowrap">${item.sev.toUpperCase()}</td>
+      </tr>`;
+    });
+  });
+
+  return `<div style="font-family:Arial,sans-serif;max-width:700px;border:1px solid #D8E2EE;border-radius:8px;overflow:hidden">
+  <div style="background:#00224F;padding:12px 16px;border-bottom:3px solid #009999">
+    <div style="color:white;font-weight:bold;font-size:15px">📋 Post-Change Sanity Validation</div>
+    <div style="color:rgba(255,255,255,0.55);font-size:11px;margin-top:3px">Siemens GSW Service Operations · ${genTime}${isWebhookMode?' · Auto-triggered via Freshservice Webhook':''}</div>
+  </div>
+  <div style="padding:12px 16px;background:#F4F7FA;border-bottom:1px solid #D8E2EE">
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <tr>
+        <td style="color:#526070;width:130px;padding:2px 0">Customer</td><td style="font-weight:600">${customer}</td>
+        <td style="color:#526070;width:130px">Change #</td><td style="font-weight:600">${crNum}</td>
+      </tr>
+      <tr>
+        <td style="color:#526070;padding-top:6px">Change Types</td><td colspan="3" style="font-weight:600;padding-top:6px">${types}</td>
+      </tr>
+    </table>
+  </div>
+  <div style="padding:10px 16px;background:${pct===100?'#D6F5E3':'#FFF0CC'};border-bottom:1px solid #D8E2EE;display:flex;align-items:center;gap:10px">
+    <span style="font-size:22px;font-weight:700;color:${pct===100?'#1A8A4A':'#C97A00'}">${pct}%</span>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:${pct===100?'#1A8A4A':'#C97A00'}">${pct===100?'✅ All checks passed — CR ready to close':`⚠️ ${failed} check(s) pending — review before closing`}</div>
+      <div style="font-size:11px;color:#526070;margin-top:2px">${done} of ${total} validation checks completed</div>
+    </div>
+  </div>
+  <table style="width:100%;border-collapse:collapse">
+    <thead><tr style="background:#F4F7FA">
+      <th style="padding:7px 10px;text-align:left;font-size:11px;color:#526070;width:32px">Status</th>
+      <th style="padding:7px 10px;text-align:left;font-size:11px;color:#526070">Validation Check</th>
+      <th style="padding:7px 10px;text-align:left;font-size:11px;color:#526070">Severity</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div style="padding:8px 16px;background:#F4F7FA;border-top:1px solid #D8E2EE;font-size:10px;color:#8A9BB0">
+    Generated by CR Sanity Validator · Siemens GSW SOp Tool · ${isWebhookMode?'Freshservice Webhook':'Manual Mode'}
+  </div>
+</div>`;
+}
+
+/* ══ Copy / Download ══ */
+function copyDoc() {
+  navigator.clipboard.writeText(docText).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.innerHTML = `<svg class="ic" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+    showToast('success', 'Document copied to clipboard!');
+    setTimeout(() => { btn.innerHTML = `<svg class="ic" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy to Clipboard`; }, 2500);
+  }).catch(() => {
+    const ta = document.createElement('textarea'); ta.value = docText;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('success', 'Copied!');
+  });
+}
+
+function downloadDoc() {
+  const crNum = window._crNum || 'CR';
+  const blob = new Blob([docText], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `SanityDoc_${crNum}_${new Date().toISOString().split('T')[0]}.txt`;
+  a.click();
+  showToast('success', 'Document downloaded!');
+}
+
+function newCR() {
+  if (!confirm('Start a new CR? Current data will be cleared.')) return;
+  location.href = location.pathname; // strip params
+}
+
+/* ══ Toast ══ */
+function showToast(type, msg) {
+  const t = document.getElementById('toast');
+  const icon = document.getElementById('toastIcon');
+  const m = document.getElementById('toastMsg');
+  const colors = { success: '#1A8A4A', error: '#CC2200', warn: '#C97A00' };
+  const icons  = { success: '✅', error: '❌', warn: '⚠️' };
+  t.style.borderLeft = `3px solid ${colors[type]||colors.success}`;
+  icon.textContent = icons[type] || '✅';
+  m.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+/* ══ Boot — read webhook params on page load ══ */
+readWebhookParams();
+</script>
+</body>
+</html>
 
