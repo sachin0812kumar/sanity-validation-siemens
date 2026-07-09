@@ -259,6 +259,8 @@
   }
   .check-section-title.customer-section { background: linear-gradient(90deg, #E0F2F2, #F0FAFA); border-left-color: var(--accent); color: var(--accent-dark); }
   .check-section-title.customer-section .cust-tag { display: inline-block; background: var(--accent); color: #fff; font-size: 9px; font-weight: 700; padding: 1px 7px; border-radius: 20px; margin-right: 6px; letter-spacing: 0.06em; vertical-align: middle; }
+  .check-section-title.component-section { background: linear-gradient(90deg, #FEF9E7, #FEFDF5); border-left-color: #D97706; color: #92400E; }
+  .check-section-title.component-section .comp-tag { display: inline-block; background: #D97706; color: #fff; font-size: 9px; font-weight: 700; padding: 1px 7px; border-radius: 20px; margin-right: 6px; letter-spacing: 0.06em; vertical-align: middle; }
   .check-item {
     display: flex; align-items: flex-start; gap: 12px;
     padding: 12px 20px; border-bottom: 1px solid var(--border);
@@ -427,14 +429,15 @@
               <option value="">Select customer...</option>
               <option>UKPN</option>
               <option>NPG</option>
-              <option>SPEN</option>
-              <option>ELV</option>
-              <option>ESB</option>
-              <option>BKW</option>
-              <option>Meralco</option>
-              <option>KM</option>
-              <option>STEG</option>
-               <option>Other</option>
+              <option>SPENDCC</option>
+              <option>Acme Corp</option>
+              <option>GlobalBank Ltd</option>
+              <option>TechFlow Inc</option>
+              <option>Meridian Health</option>
+              <option>RetailMax Group</option>
+              <option>DataSec Asia</option>
+              <option>FinServ APAC</option>
+              <option>Other</option>
             </select>
             <div id="customerBadge" style="display:none;margin-top:8px"></div>
           </div>
@@ -525,6 +528,67 @@
             <div class="type-name">Security</div><div class="type-desc">ACL / certs / auth</div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ── COMPONENT HEALTH CARD ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon" style="background:#FEF3C7">
+          <svg class="ic" style="stroke:#D97706" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Components to Validate <span style="font-size:12px;font-weight:400;color:var(--text-muted)">— select all affected</span></div>
+          <div class="card-subtitle">Component-specific health checks will be added to the checklist</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="type-grid">
+
+          <div class="type-card" data-comp="MDM" onclick="toggleComp(this)">
+            <div class="type-icon" style="background:#EDE9FE">
+              <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#7C3AED;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            </div>
+            <div class="type-name">MDM</div>
+            <div class="type-desc">Meter Data Management</div>
+          </div>
+
+          <div class="type-card" data-comp="PPE" onclick="toggleComp(this)">
+            <div class="type-icon" style="background:#FEF3C7">
+              <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#D97706;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <div class="type-name">PPE</div>
+            <div class="type-desc">Pre-Payment Engine</div>
+          </div>
+
+          <div class="type-card" data-comp="HES" onclick="toggleComp(this)">
+            <div class="type-icon" style="background:#E0F5F5">
+              <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#009999;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <div class="type-name">HES</div>
+            <div class="type-desc">Head End System</div>
+          </div>
+
+          <div class="type-card" data-comp="KAFKA" onclick="toggleComp(this)">
+            <div class="type-icon" style="background:#FEE2E2">
+              <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#DC2626;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v4M12 11l-5 6M12 11l5 6"/></svg>
+            </div>
+            <div class="type-name">KAFKA</div>
+            <div class="type-desc">Message Broker</div>
+          </div>
+
+          <div class="type-card" data-comp="AMC" onclick="toggleComp(this)">
+            <div class="type-icon" style="background:#D6F5E3">
+              <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#1A8A4A;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            </div>
+            <div class="type-name">AMC</div>
+            <div class="type-desc">Advanced Metering</div>
+          </div>
+
+        </div>
+
+        <!-- Selected components summary -->
+        <div id="compBadge" style="display:none;margin-top:12px"></div>
       </div>
       <div class="btn-row">
         <button class="btn btn-primary" onclick="goStep(2)">
@@ -917,6 +981,144 @@ setInterval(updateClock, 1000);
 
 document.getElementById('crDate').valueAsDate = new Date();
 
+/* ══════════════════════════════════════
+   COMPONENT CHECKS — common across all customers
+   Add / edit checks per component below
+══════════════════════════════════════ */
+const COMPONENT_CHECKS = {
+
+  "MDM": {
+    "MDM — Service Health": [
+      {id:"mdm1", text:"MDM application service is running and responding on all nodes", sev:"critical", hint:"Check service status via admin console or systemctl"},
+      {id:"mdm2", text:"MDM database connectivity confirmed — no connection errors in logs", sev:"critical", hint:"Check MDM application logs for DB connection failures"},
+      {id:"mdm3", text:"MDM data ingestion pipeline processing meter reads without errors", sev:"high", hint:"Verify ingestion queue depth and error rate in MDM dashboard"},
+      {id:"mdm4", text:"MDM API endpoints responding correctly — health check returns 200 OK", sev:"critical", hint:"Hit /health or /status endpoint and confirm response"},
+    ],
+    "MDM — Data Validation": [
+      {id:"mdm5", text:"Meter data reads are being received and stored correctly in MDM", sev:"high", hint:"Spot check 2-3 meter reads end-to-end"},
+      {id:"mdm6", text:"Data validation rules running — invalid reads being flagged correctly", sev:"high"},
+      {id:"mdm7", text:"MDM billing export / data export jobs running on schedule", sev:"medium", hint:"Check job scheduler for last successful run timestamp"},
+      {id:"mdm8", text:"No backlog of unprocessed meter reads in queue", sev:"high", hint:"Queue depth should be within normal thresholds"},
+    ],
+    "MDM — Integrations": [
+      {id:"mdm9", text:"MDM to downstream system data flow confirmed (billing, CRM, etc.)", sev:"high"},
+      {id:"mdm10", text:"MDM audit logs capturing all data changes post-change", sev:"medium"},
+    ]
+  },
+
+  "PPE": {
+    "PPE — Service Health": [
+      {id:"ppe1", text:"PPE service is running and all processes are active", sev:"critical", hint:"Check PPE service status on all nodes"},
+      {id:"ppe2", text:"PPE API gateway responding — authentication and token flow working", sev:"critical", hint:"Test API auth endpoint and confirm token generation"},
+      {id:"ppe3", text:"PPE payment processing engine running without errors", sev:"critical", hint:"Check PPE engine logs for any processing failures"},
+      {id:"ppe4", text:"PPE database connections healthy — no connection pool exhaustion", sev:"high"},
+    ],
+    "PPE — Payment Validation": [
+      {id:"ppe5", text:"Test pre-payment top-up transaction processed end-to-end successfully", sev:"critical", hint:"Execute a test top-up and confirm balance updated"},
+      {id:"ppe6", text:"Credit balance calculations correct for test meter account", sev:"critical", hint:"Verify balance before and after a test top-up"},
+      {id:"ppe7", text:"PPE to HES communication confirmed — balance updates sent correctly", sev:"high", hint:"Check PPE → HES message flow after a test top-up"},
+      {id:"ppe8", text:"Low credit alerts and emergency credit functioning correctly", sev:"high"},
+      {id:"ppe9", text:"PPE transaction logs capturing all events post-change", sev:"medium"},
+    ],
+    "PPE — Reconciliation": [
+      {id:"ppe10", text:"PPE reconciliation jobs running on schedule", sev:"medium", hint:"Check reconciliation job last run timestamp"},
+      {id:"ppe11", text:"No unmatched or failed transactions in PPE exception queue", sev:"high"},
+    ]
+  },
+
+  "HES": {
+    "HES — Service Health": [
+      {id:"hes1", text:"HES application server running and accessible on all nodes", sev:"critical", hint:"Check HES service status and admin console"},
+      {id:"hes2", text:"HES to meter communication channel active — test meter ping successful", sev:"critical", hint:"Send a test command to a known meter and confirm response"},
+      {id:"hes3", text:"HES DCC connection active — data collector running without errors", sev:"critical", hint:"Verify DCC connector status in HES admin panel"},
+      {id:"hes4", text:"HES database healthy — no connectivity or performance issues", sev:"high"},
+    ],
+    "HES — Meter Communication": [
+      {id:"hes5", text:"On-demand meter read executed successfully via HES", sev:"critical", hint:"Trigger an on-demand read for a test MPAN and confirm data received"},
+      {id:"hes6", text:"Scheduled meter reads processing and data flowing to MDM", sev:"high", hint:"Check scheduled read job status and MDM inbound queue"},
+      {id:"hes7", text:"HES command queue processing — no stuck or failed commands", sev:"high", hint:"Review HES command queue for error counts"},
+      {id:"hes8", text:"Time synchronisation confirmed on HES server", sev:"medium", hint:"Check NTP sync — HES timing is critical for meter scheduling"},
+    ],
+    "HES — Alarms & Events": [
+      {id:"hes9", text:"HES alarm processing active — meter tamper and outage events flowing", sev:"high"},
+      {id:"hes10", text:"HES event logs showing normal activity post-change", sev:"medium"},
+    ]
+  },
+
+  "KAFKA": {
+    "KAFKA — Broker Health": [
+      {id:"kfk1", text:"All Kafka brokers are online and in-sync (ISR count = replica count)", sev:"critical", hint:"Run kafka-broker-api-versions.sh or check Kafka Manager UI"},
+      {id:"kfk2", text:"Zookeeper / KRaft controller healthy and quorum established", sev:"critical", hint:"Check zookeeper status or KRaft controller logs"},
+      {id:"kfk3", text:"No under-replicated partitions reported across all topics", sev:"critical", hint:"Run kafka-topics.sh --describe and check for URP"},
+      {id:"kfk4", text:"Kafka disk usage within safe threshold on all brokers", sev:"high", hint:"Disk should be below 70% on all broker nodes"},
+    ],
+    "KAFKA — Topics & Consumers": [
+      {id:"kfk5", text:"All critical topics present and partition assignments correct", sev:"critical", hint:"List topics and verify partition count matches expected config"},
+      {id:"kfk6", text:"Consumer group lag within acceptable limits for all groups", sev:"high", hint:"Run kafka-consumer-groups.sh --describe and check LAG column"},
+      {id:"kfk7", text:"Test message produced and consumed successfully end-to-end", sev:"critical", hint:"Produce a test message to a non-production topic and verify consumer receives it"},
+      {id:"kfk8", text:"No stuck or inactive consumer groups detected", sev:"high"},
+    ],
+    "KAFKA — Performance": [
+      {id:"kfk9", text:"Message throughput within normal baseline (producer/consumer rates)", sev:"medium", hint:"Check Kafka metrics dashboard — compare to pre-change baseline"},
+      {id:"kfk10", text:"Kafka JVM heap usage healthy — no GC pressure on brokers", sev:"medium"},
+      {id:"kfk11", text:"Topic retention policies intact — no unintended data loss", sev:"high", hint:"Verify retention.ms and retention.bytes settings match config"},
+    ]
+  },
+
+  "AMC": {
+    "AMC — Service Health": [
+      {id:"amc1", text:"AMC service running and all scheduled collection tasks active", sev:"critical", hint:"Check AMC service status and task scheduler"},
+      {id:"amc2", text:"AMC connectivity to meter network confirmed", sev:"critical", hint:"Verify AMC can reach the metering network on required ports"},
+      {id:"amc3", text:"AMC data collection jobs completing without errors", sev:"critical", hint:"Check last job run status and error counts in AMC console"},
+      {id:"amc4", text:"AMC to MDM data transfer pipeline active and processing", sev:"high", hint:"Confirm data flowing from AMC into MDM ingestion queue"},
+    ],
+    "AMC — Collection Validation": [
+      {id:"amc5", text:"Test meter data collection executed and data received correctly", sev:"critical", hint:"Trigger on-demand collection for a test meter and verify data"},
+      {id:"amc6", text:"AMC collection success rate within acceptable threshold (>95%)", sev:"high", hint:"Check collection success/failure ratio in AMC reporting dashboard"},
+      {id:"amc7", text:"Failed collection attempts being retried and flagged correctly", sev:"high"},
+      {id:"amc8", text:"AMC data transformation and mapping producing correct output format", sev:"high", hint:"Spot check a sample of transformed records against expected schema"},
+    ],
+    "AMC — Monitoring": [
+      {id:"amc9", text:"AMC alerts and notifications configured and active", sev:"medium"},
+      {id:"amc10", text:"AMC audit trail capturing all collection events post-change", sev:"medium"},
+    ]
+  }
+
+};
+
+/* ══ Selected components state ══ */
+let selectedComps = [];
+
+/* ══ Toggle component chip ══ */
+function toggleComp(el) {
+  const c = el.dataset.comp;
+  el.classList.remove('auto-selected');
+  el.classList.toggle('selected');
+  if (selectedComps.includes(c)) selectedComps = selectedComps.filter(x => x !== c);
+  else selectedComps.push(c);
+  updateCompBadge();
+}
+
+function updateCompBadge() {
+  const badge = document.getElementById('compBadge');
+  if (selectedComps.length === 0) { badge.style.display = 'none'; return; }
+  const totalChecks = selectedComps.reduce((acc, c) => {
+    return acc + (COMPONENT_CHECKS[c] ? Object.values(COMPONENT_CHECKS[c]).flat().length : 0);
+  }, 0);
+  badge.style.display = 'block';
+  badge.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;
+      background:var(--accent-light);border:1px solid rgba(0,153,153,0.3);
+      border-radius:var(--radius);animation:fadeIn 0.2s ease">
+      <svg class="ic" style="stroke:var(--accent);flex-shrink:0" viewBox="0 0 24 24">
+        <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+      </svg>
+      <span style="font-size:12px;color:var(--accent-dark);font-weight:600">
+        ${selectedComps.join(', ')} — ${totalChecks} component health checks will be added
+      </span>
+    </div>`;
+}
+
 /* ══ Customer badge ══ */
 function onCustomerChange(val) {
   const badge = document.getElementById('customerBadge');
@@ -974,20 +1176,36 @@ function buildChecklist() {
   checkState = {};
   const customer = document.getElementById('customer').value;
   const groups = {};
+
+  // Layer 1 — Common
   Object.assign(groups, COMMON);
+
+  // Layer 2 — Customer specific
   if (customer && CUSTOMER_CHECKS[customer]) {
     Object.entries(CUSTOMER_CHECKS[customer]).forEach(([section, items]) => { groups[`${customer} — ${section}`] = items; });
   }
+
+  // Layer 3 — Change type specific
   selectedTypes.forEach(t => { if (CHECKS[t]) Object.assign(groups, CHECKS[t]); });
+
+  // Layer 4 — Component health checks
+  selectedComps.forEach(c => { if (COMPONENT_CHECKS[c]) Object.assign(groups, COMPONENT_CHECKS[c]); });
 
   let total = 0, critical = 0, high = 0;
   let html = '';
   Object.entries(groups).forEach(([grp, items]) => {
     const isCust = customer && grp.startsWith(customer + ' —');
-    const titleClass = isCust ? 'check-section-title customer-section' : 'check-section-title';
-    const titleHTML  = isCust
+    const isComp = selectedComps.some(c => grp.startsWith(c + ' —'));
+    const titleClass = isCust
+      ? 'check-section-title customer-section'
+      : isComp
+        ? 'check-section-title component-section'
+        : 'check-section-title';
+    const titleHTML = isCust
       ? `<span class="cust-tag">CUSTOMER</span>${grp.replace(customer + ' — ', '')}`
-      : grp;
+      : isComp
+        ? `<span class="comp-tag">COMPONENT</span>${grp}`
+        : grp;
     html += `<div class="check-section"><div class="${titleClass}">${titleHTML}</div>`;
     items.forEach(item => {
       checkState[item.id] = false;
@@ -1013,7 +1231,7 @@ function buildChecklist() {
     <div class="metric"><div class="metric-val">${total}</div><div class="metric-key">Total Checks</div></div>
     <div class="metric"><div class="metric-val" style="color:var(--red)">${critical}</div><div class="metric-key">Critical</div></div>
     <div class="metric"><div class="metric-val" style="color:var(--amber)">${high}</div><div class="metric-key">High</div></div>
-    <div class="metric"><div class="metric-val">${selectedTypes.length}</div><div class="metric-key">Change Types</div></div>`;
+    <div class="metric"><div class="metric-val">${selectedComps.length > 0 ? selectedComps.join('+') : '—'}</div><div class="metric-key">Components</div></div>`;
 }
 
 function tickCheck(id, val) {
@@ -1051,7 +1269,8 @@ function buildDoc() {
   const desc     = document.getElementById('crDesc').value || '—';
   const env      = document.getElementById('environment').value || 'N/A';
   const risk     = document.getElementById('crRisk').value || 'N/A';
-  const types    = selectedTypes.join(', ');
+  const types    = selectedTypes.join(', ') || 'N/A';
+  const comps    = selectedComps.join(', ') || 'None selected';
   const genTime  = new Date().toLocaleString();
 
   const groups = {};
@@ -1060,6 +1279,7 @@ function buildDoc() {
     Object.entries(CUSTOMER_CHECKS[customer]).forEach(([section, items]) => { groups[`${customer} — ${section}`] = items; });
   }
   selectedTypes.forEach(t => { if (CHECKS[t]) Object.assign(groups, CHECKS[t]); });
+  selectedComps.forEach(c => { if (COMPONENT_CHECKS[c]) Object.assign(groups, COMPONENT_CHECKS[c]); });
 
   const total  = Object.keys(checkState).length;
   const done   = Object.values(checkState).filter(Boolean).length;
@@ -1084,6 +1304,7 @@ CHANGE DETAILS
 Customer / Account  : ${customer}
 Change Request #    : ${crNum}
 Change Type(s)      : ${types}
+Components          : ${comps}
 Environment         : ${env}
 Risk Level          : ${risk}
 Implementation Date : ${crDate}
@@ -1225,6 +1446,7 @@ function buildFreshserviceNoteHTML() {
   const customer = document.getElementById('customer').value;
   const crNum    = document.getElementById('crNumber').value;
   const types    = selectedTypes.join(', ');
+  const comps    = selectedComps.length > 0 ? selectedComps.join(', ') : 'None';
   const total    = Object.keys(checkState).length;
   const done     = Object.values(checkState).filter(Boolean).length;
   const pct      = total ? Math.round(done/total*100) : 0;
@@ -1237,11 +1459,17 @@ function buildFreshserviceNoteHTML() {
     Object.entries(CUSTOMER_CHECKS[customer]).forEach(([s,i]) => { groups[`${customer} — ${s}`] = i; });
   }
   selectedTypes.forEach(t => { if (CHECKS[t]) Object.assign(groups, CHECKS[t]); });
+  selectedComps.forEach(c => { if (COMPONENT_CHECKS[c]) Object.assign(groups, COMPONENT_CHECKS[c]); });
 
   let rows = '';
   Object.entries(groups).forEach(([grp, items]) => {
     const isCust = customer && grp.startsWith(customer + ' —');
-    rows += `<tr><td colspan="3" style="background:${isCust?'#D0EEE8':'#E0F0F0'};font-weight:bold;font-size:11px;padding:6px 10px;color:${isCust?'#007755':'#006666'};border-top:2px solid #009999">${grp}</td></tr>`;
+    const isComp = selectedComps.some(c => grp.startsWith(c + ' —'));
+    const hdrBg    = isCust ? '#D0EEE8' : isComp ? '#FEF3C7' : '#E0F0F0';
+    const hdrColor = isCust ? '#007755' : isComp ? '#92400E' : '#006666';
+    const hdrBorder= isCust ? '#009999' : isComp ? '#D97706' : '#009999';
+    const prefix   = isCust ? '★ ' : isComp ? '⚙ ' : '';
+    rows += `<tr><td colspan="3" style="background:${hdrBg};font-weight:bold;font-size:11px;padding:6px 10px;color:${hdrColor};border-top:2px solid ${hdrBorder}">${prefix}${grp}</td></tr>`;
     items.forEach(item => {
       const pass = checkState[item.id];
       const sevColor = item.sev==='critical'?'#CC2200':item.sev==='high'?'#C97A00':'#007777';
@@ -1266,6 +1494,9 @@ function buildFreshserviceNoteHTML() {
       </tr>
       <tr>
         <td style="color:#526070;padding-top:6px">Change Types</td><td colspan="3" style="font-weight:600;padding-top:6px">${types}</td>
+      </tr>
+      <tr>
+        <td style="color:#526070;padding-top:6px">Components</td><td colspan="3" style="font-weight:600;padding-top:6px">${comps}</td>
       </tr>
     </table>
   </div>
