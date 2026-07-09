@@ -378,7 +378,7 @@
     <div class="webhook-dot"></div>
     <div class="webhook-text">
       ⚡ Auto-triggered from <strong>Freshservice</strong> — CR details loaded automatically.
-      Change type pre-selected based on CR category. Review and complete the checklist.
+      Complete the checklist and click Generate — your .txt will auto-download and email will open ready to send.
     </div>
     <button class="webhook-dismiss" onclick="dismissBanner()">✕</button>
   </div>
@@ -476,7 +476,12 @@
             <textarea id="crDesc" placeholder="Brief description of what was changed..."></textarea>
           </div>
 
-          <!-- Hidden field to store Freshservice ticket ID for post-back -->
+          <div class="form-group full">
+            <label>Engineer Email <span style="color:var(--text-muted);font-weight:400">(for auto-email after submit)</span></label>
+            <input type="text" id="fsEngEmail" placeholder="engineer@siemens.com, team@siemens.com">
+          </div>
+
+          <!-- Hidden fields for Freshservice post-back -->
           <input type="hidden" id="fsTicketId">
           <input type="hidden" id="fsApiKey">
           <input type="hidden" id="fsDomain">
@@ -860,6 +865,8 @@ function readWebhookParams() {
   // Fill CR details
   if (cr)       { const el = document.getElementById('crNumber'); el.value = cr; el.setAttribute('readonly',''); }
   if (eng)      { const el = document.getElementById('implementedBy'); el.value = eng; }
+  const email = params.get('email');
+  if (email)    { document.getElementById('fsEngEmail').value = decodeURIComponent(email); }
   if (desc)     { const el = document.getElementById('crDesc'); el.value = decodeURIComponent(desc); }
   if (risk)     { document.getElementById('crRisk').value = risk; }
 
@@ -1150,6 +1157,9 @@ END OF DOCUMENT — ${crNum} — ${customer}
   if (ticketId || isWebhookMode) {
     document.getElementById('postbackSection').style.display = 'block';
   }
+
+  // AUTO-SUBMIT: download .txt + open email draft automatically
+  autoSubmit();
 }
 
 /* ══════════════════════════════════════
@@ -1297,17 +1307,75 @@ function copyDoc() {
 
 function downloadDoc() {
   const crNum = window._crNum || 'CR';
-  const blob = new Blob([docText], {type:'text/plain'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `SanityDoc_${crNum}_${new Date().toISOString().split('T')[0]}.txt`;
+  const blob  = new Blob([docText], {type:'text/plain'});
+  const a     = document.createElement('a');
+  a.href      = URL.createObjectURL(blob);
+  a.download  = `SanityDoc_${crNum}_${new Date().toISOString().split('T')[0]}.txt`;
   a.click();
-  showToast('success', 'Document downloaded!');
+  showToast('success', 'Document downloaded — attach to CR ticket!');
+}
+
+/* ══ AUTO-SUBMIT: runs on Step 3 load — downloads .txt + sends email ══ */
+function autoSubmit() {
+  const crNum    = document.getElementById('crNumber').value || 'CR';
+  const customer = document.getElementById('customer').value || '';
+  const eng      = document.getElementById('implementedBy').value || '';
+  const total    = Object.keys(checkState).length;
+  const done     = Object.values(checkState).filter(Boolean).length;
+  const pct      = total ? Math.round(done/total*100) : 0;
+  const failed   = total - done;
+  const date     = new Date().toISOString().split('T')[0];
+
+  /* 1. Auto-download the .txt file */
+  setTimeout(() => {
+    const blob = new Blob([docText], {type:'text/plain'});
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = `SanityDoc_${crNum}_${date}.txt`;
+    a.click();
+    showToast('success', `📥 Sanity doc downloaded — SanityDoc_${crNum}_${date}.txt`);
+  }, 600);
+
+  /* 2. Open email client with pre-filled content */
+  setTimeout(() => {
+    const engineerEmail = document.getElementById('fsEngEmail').value || '';
+    const subject = encodeURIComponent(
+      `[Sanity Complete] CR ${crNum} — ${customer} — Post-Change Validation ${pct === 100 ? '✅ PASSED' : `⚠️ ${failed} PENDING`}`
+    );
+    const body = encodeURIComponent(
+`Hi Team,
+
+Post-change sanity validation has been completed for the following change request.
+
+Change Request : ${crNum}
+Customer       : ${customer}
+Implemented By : ${eng}
+Date           : ${date}
+
+Validation Result : ${pct}% complete — ${done}/${total} checks passed
+Overall Status    : ${pct === 100 ? 'ALL CHECKS PASSED — CR READY TO CLOSE' : `${failed} PENDING ITEM(S) — REVIEW REQUIRED`}
+
+Please find the full sanity test document attached to this email (SanityDoc_${crNum}_${date}.txt).
+The document has also been posted as a private note on the CR ticket in Freshservice.
+
+Next Steps:
+${pct === 100
+  ? `✅ All checks passed. Please attach the .txt file to the CR ticket and close the change request.`
+  : `⚠️  ${failed} check(s) are incomplete. Please review and resolve before closing.`}
+
+Regards,
+Service Operations Team — Siemens GSW`
+    );
+
+    const mailtoLink = `mailto:${engineerEmail}?subject=${subject}&body=${body}`;
+    window.open(mailtoLink, '_blank');
+    showToast('success', '📧 Email draft opened — attach the .txt file and send!');
+  }, 1800);
 }
 
 function newCR() {
   if (!confirm('Start a new CR? Current data will be cleared.')) return;
-  location.href = location.pathname; // strip params
+  location.href = location.pathname;
 }
 
 /* ══ Toast ══ */
