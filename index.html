@@ -364,7 +364,7 @@
       </div>
       <div>
         <div class="logo-text">Siemens GSW</div>
-        <div class="logo-sub">CR Sanity Validator · Service Operations</div>
+        <div class="logo-sub">CR Sanity Validator · Premium Support Team</div>
       </div>
     </div>
     <div class="header-right">
@@ -555,7 +555,7 @@
               <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#D97706;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
             </div>
             <div class="type-name">PPE</div>
-            <div class="type-desc">Pre-Payment Engine</div>
+            <div class="type-desc">Pre-Payment </div>
           </div>
 
           <div class="type-card" data-comp="HES" onclick="toggleComp(this)">
@@ -579,7 +579,7 @@
               <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#1A8A4A;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
             </div>
             <div class="type-name">AMC</div>
-            <div class="type-desc">Advanced Metering</div>
+            <div class="type-desc">Asset Management System</div>
           </div>
 
         </div>
@@ -694,8 +694,8 @@
 </main>
 
 <footer class="footer">
-  <strong style="color:var(--accent)">Siemens GSW</strong> · CR Sanity Validator · Service Operations ·
-  All data processed locally in your browser — nothing is transmitted externally except direct Freshservice API calls you authorise
+  <strong style="color:var(--accent)">Siemens GSW</strong> · CR Sanity Validator · Premium Support Team ·
+  All data processed locally in your browser
 </footer>
 
 <!-- TOAST -->
@@ -1290,7 +1290,7 @@ function buildDoc() {
   let doc = `
 ╔══════════════════════════════════════════════════════════════╗
 ║          POST-CHANGE SANITY TEST DOCUMENT                    ║
-║          Siemens GSW · Service Operations Practice           ║
+║          Siemens GSW · Premium Support Team Practice           ║
 ╚══════════════════════════════════════════════════════════════╝
 Document Generated : ${genTime}
 Triggered Via      : ${isWebhookMode ? 'Freshservice Webhook (automated)' : 'Manual entry'}
@@ -1481,7 +1481,7 @@ function buildFreshserviceNoteHTML() {
   return `<div style="font-family:Arial,sans-serif;max-width:700px;border:1px solid #D8E2EE;border-radius:8px;overflow:hidden">
   <div style="background:#00224F;padding:12px 16px;border-bottom:3px solid #009999">
     <div style="color:white;font-weight:bold;font-size:15px">📋 Post-Change Sanity Validation</div>
-    <div style="color:rgba(255,255,255,0.55);font-size:11px;margin-top:3px">Siemens GSW Service Operations · ${genTime}${isWebhookMode?' · Auto-triggered via Freshservice Webhook':''}</div>
+    <div style="color:rgba(255,255,255,0.55);font-size:11px;margin-top:3px">Siemens GSW Premium Support Team · ${genTime}${isWebhookMode?' · Auto-triggered via Freshservice Webhook':''}</div>
   </div>
   <div style="padding:12px 16px;background:#F4F7FA;border-bottom:1px solid #D8E2EE">
     <table style="width:100%;border-collapse:collapse;font-size:12px">
@@ -1591,7 +1591,7 @@ ${pct === 100
   : `⚠️  ${failed} check(s) are incomplete. Please review and resolve before closing.`}
 
 Regards,
-Service Operations Team — Siemens GSW`
+Premium Support Team Team — Siemens GSW`
     );
 
     const mailtoLink = `mailto:${engineerEmail}?subject=${subject}&body=${body}`;
