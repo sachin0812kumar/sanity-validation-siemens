@@ -1327,7 +1327,7 @@ END OF DOCUMENT — ${crNum} — ${customer}
 
   const bannerClass = pct===100?'ok':pct>=80?'warn':'fail';
   const bannerText  = pct===100
-    ? '✅ All checks passed — change is verified and ready to close.'
+    ? '✅ All checks passed — changes is verified and ready to close.'
     : pct>=80 ? `⚠️  ${failed} check(s) still pending. Resolve before closing the CR.`
     : `❌ ${failed} check(s) incomplete. Do not close CR until resolved.`;
   document.getElementById('statusBanner').innerHTML = `<div class="status-banner ${bannerClass}">${bannerText}</div>`;
