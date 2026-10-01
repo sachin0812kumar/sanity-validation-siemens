@@ -1476,7 +1476,7 @@ function autoSubmit() {
   setTimeout(() => {
     const engineerEmail = document.getElementById('fsEngEmail').value || '';
     const subject = encodeURIComponent(
-      `[Sanity Complete] CR ${crNum} — ${customer} — Post-Change Validation ${pct === 100 ? '✅ PASSED' : `⚠️ ${failed} PENDING`}`
+      `CR ${crNum}: Completed - [Sanity Complete]  ${customer} `
     );
     const body = encodeURIComponent(
 `Hi Team,
