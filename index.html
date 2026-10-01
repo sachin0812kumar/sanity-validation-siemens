@@ -368,7 +368,7 @@
       </div>
       <div>
         <div class="logo-text">Siemens GSW</div>
-        <div class="logo-sub">CR Sanity Validator · Service Operations</div>
+        <div class="logo-sub">CR Sanity Validator · Prem Support </div>
       </div>
     </div>
     <div class="header-right">
@@ -419,10 +419,10 @@
         </div>
         <div>
           <div class="card-title">
-            Change Request Information
+            Change Request Test Validation
             <span class="autofill-tag hidden" id="autofillTag">Auto-filled from Freshservice</span>
           </div>
-          <div class="card-subtitle">CR details are auto-populated when triggered from Freshservice</div>
+          <div class="card-subtitle">Please populate the CR details to initiate the test validation process. </div>
         </div>
       </div>
       <div class="card-body">
@@ -433,14 +433,14 @@
               <option value="">Select customer...</option>
               <option>UKPN</option>
               <option>NPG</option>
-              <option>SPENDCC</option>
-              <option>Acme Corp</option>
-              <option>GlobalBank Ltd</option>
-              <option>TechFlow Inc</option>
-              <option>Meridian Health</option>
-              <option>RetailMax Group</option>
-              <option>DataSec Asia</option>
-              <option>FinServ APAC</option>
+              <option>SPEN</option>
+              <option>ELV</option>
+              <option>BKW</option>
+              <option>ESB</option>
+              <option>STEG</option>
+              <option>KM</option>
+              <option>Meralco</option>
+              <option>AmericalWater</option>
               <option>Other</option>
             </select>
             <div id="customerBadge" style="display:none;margin-top:8px"></div>
@@ -489,7 +489,6 @@
 
           <!-- Hidden fields for Freshservice post-back -->
           <input type="hidden" id="fsTicketId">
-          <input type="hidden" id="fsApiKey">
           <input type="hidden" id="fsDomain">
         </div>
       </div>
@@ -640,7 +639,7 @@
     <div id="statusBanner"></div>
     <div class="metrics" id="summaryMetrics"></div>
 
-    <!-- ═══ FRESHSERVICE API CALLBACK CARD ═══ -->
+    <!-- ═══ FRESHSERVICE CALLBACK CARD ═══ -->
     <div class="card" id="postbackSection">
       <div class="card-header">
         <div class="card-header-icon" style="background:#E8F0FF">
@@ -651,108 +650,37 @@
         <div style="flex:1">
           <div class="card-title">
             Post Result to Freshservice CR
-            <span id="fsConnectedBadge" style="display:none;margin-left:8px;background:var(--green-light);color:var(--green);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid rgba(26,138,74,0.2)">● CONNECTED</span>
           </div>
-          <div class="card-subtitle">Sends the sanity result directly to the Freshservice Change Request as a private note using <strong>POST /api/v2/changes/{id}/notes</strong></div>
+          <div class="card-subtitle">Copy the sanity report, then paste it into the CR’s Notes tab in Freshservice.</div>
         </div>
       </div>
       <div class="card-body">
 
-        <!-- Connection fields -->
+        <!-- Fields needed to build the direct link -->
         <div class="form-grid" style="margin-bottom:14px">
           <div class="form-group">
             <label>
               Freshservice Domain
               <span style="font-weight:400;color:var(--text-light)"> — auto-filled from webhook</span>
             </label>
-            <input type="text" id="fsDomainInput" placeholder="yourcompany.freshservice.com">
-          </div>
-          <div class="form-group">
-            <label>
-              API Key
-              <span style="font-weight:400;color:var(--text-light)"> — from Profile Settings → API Key</span>
-            </label>
-            <input type="password" id="fsApiKeyInput" placeholder="Paste Freshservice API key">
+            <input type="text" id="fsDomainInput" placeholder="yourcompany.freshservice.com" value="https://gridscale-sandbox-new-apr-2025.freshservice.com/">
           </div>
           <div class="form-group">
             <label>Change Request ID (numeric)</label>
-            <input type="text" id="fsChangeIdInput" placeholder="e.g. 1234" readonly style="background:var(--accent-light);border-color:rgba(0,153,153,0.4);color:var(--accent-dark)">
-          </div>
-          <div class="form-group" style="justify-content:flex-end;flex-direction:row;align-items:flex-end;gap:8px">
-            <button class="btn" onclick="testFsConnection()" id="testConnBtn" style="flex:1">
-              <svg class="ic" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              <span id="testConnLabel">Test Connection</span>
-              <span class="spinner" id="testSpinner"></span>
-            </button>
+            <input type="text" id="fsChangeIdInput" placeholder="e.g. 1234">
           </div>
         </div>
 
-        <!-- Connection test result -->
-        <div id="connTestResult" style="display:none;margin-bottom:12px;padding:10px 14px;border-radius:var(--radius);font-size:12px;font-weight:500;border-left:3px solid"></div>
-
-        <!-- What will be posted info -->
-        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--text-muted)">
-          <div style="font-weight:600;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:6px">
-            <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            What gets posted to Freshservice
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-            <div>📋 Full PASS/FAIL checklist as HTML table</div>
-            <div>🎯 Customer-specific check results</div>
-            <div>⚙️ Component health check results</div>
-            <div>📊 Overall completion % and status</div>
-            <div>🔒 Posted as <strong>Private Note</strong> (internal only)</div>
-            <div>🕐 Timestamp and engineer name included</div>
-          </div>
-        </div>
-
-        <!-- API endpoint info -->
-        <div style="background:#001830;border-radius:var(--radius);padding:10px 14px;font-family:'Courier New',monospace;font-size:11px;color:#A8D8D8;margin-bottom:14px;border:1px solid rgba(0,153,153,0.2)">
-          <div style="color:#00cccc;margin-bottom:4px;font-size:10px">FRESHSERVICE API ENDPOINT</div>
-          <div>POST https://<span id="previewDomain" style="color:#ffd080">yourcompany.freshservice.com</span>/api/v2/changes/<span id="previewId" style="color:#ffd080">####</span>/notes</div>
-          <div style="color:#64a0a0;margin-top:4px">Body: {"body": "&lt;html_note&gt;", "private": true}</div>
-          <div style="color:#64a0a0">Auth: Basic &lt;base64(api_key:X)&gt;</div>
-        </div>
-
-        <!-- Submit button row -->
+        <!-- Action buttons -->
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <button class="btn btn-freshservice" onclick="postToFreshservice()" id="postBtn" style="flex:1;justify-content:center;padding:11px">
-            <svg class="ic" style="stroke:white" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
-            <span id="postBtnLabel">Send Sanity Result to Freshservice CR</span>
-            <span class="spinner" id="postSpinner"></span>
+          <a id="fsDirectLinkTop" href="#" target="_blank" class="btn btn-freshservice" style="text-decoration:none;display:inline-flex;justify-content:center;flex:1;padding:11px">
+            <svg class="ic" style="stroke:white" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open CR in Freshservice →
+          </a>
+          <button class="btn" onclick="copyNoteQuick()" id="copyNoteBtn" style="background:var(--accent);color:white;border-color:var(--accent);display:inline-flex;justify-content:center;flex:1;padding:11px">
+            <svg class="ic" style="stroke:white" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy Note Text
           </button>
-        </div>
-
-        <!-- Result panel -->
-        <div id="postbackResult" style="display:none;margin-top:12px;padding:12px 14px;border-radius:var(--radius);font-size:13px;border-left:3px solid;font-weight:500"></div>
-
-        <!-- After success: next steps -->
-        <div id="nextStepsPanel" style="display:none;margin-top:12px;padding:14px;background:var(--green-light);border:1px solid rgba(26,138,74,0.2);border-radius:var(--radius)">
-          <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:10px">✅ Sanity result posted! Next steps to close the CR:</div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <div style="display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--text)">
-              <span style="background:var(--green);color:white;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">1</span>
-              <span>Open the CR in Freshservice — verify the private note has appeared in the Notes tab</span>
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--text)">
-              <span style="background:var(--green);color:white;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">2</span>
-              <span>Attach the downloaded <code style="background:rgba(0,0,0,0.08);padding:1px 5px;border-radius:3px">SanityDoc_<span id="nextStepsCrNum"></span>.txt</code> file to the CR ticket as an attachment</span>
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--text)">
-              <span style="background:var(--green);color:white;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">3</span>
-              <span>Send the confirmation email to the team with the .txt attached</span>
-            </div>
-            <div style="display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--text)">
-              <span style="background:var(--green);color:white;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">4</span>
-              <span>Change the CR status to <strong>Closed</strong> in Freshservice</span>
-            </div>
-            <div style="margin-top:6px">
-              <a id="fsDirectLink" href="#" target="_blank" class="btn btn-freshservice" style="text-decoration:none;display:inline-flex;padding:8px 14px;font-size:12px">
-                <svg class="ic" style="stroke:white" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                Open CR in Freshservice →
-              </a>
-            </div>
-          </div>
         </div>
 
       </div>
@@ -768,9 +696,10 @@
           <div class="card-subtitle">Copy or download to attach in your ITSM tool — or post directly above</div>
         </div>
       </div>
-      <div class="doc-wrap">
-        <pre class="doc-preview" id="docContent"></pre>
-      </div>
+      <details class="doc-wrap" style="padding:0">
+        <summary style="cursor:pointer;font-size:12px;color:var(--text-muted);font-weight:600;padding:14px 20px">Preview full test evidence document text</summary>
+        <pre class="doc-preview" id="docContent" style="margin:0 20px 20px"></pre>
+      </details>
       <div class="btn-row">
         <button class="btn" onclick="goStep(2)"><svg class="ic" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back</button>
         <button class="btn btn-outline" onclick="copyDoc()" id="copyBtn">
@@ -792,7 +721,7 @@
 </main>
 
 <footer class="footer">
-  <strong style="color:var(--accent)">Siemens GSW</strong> · CR Sanity Validator · Service Operations ·
+  <strong style="color:var(--accent)">Siemens GSW</strong> · CR Sanity Validator · Prem Support  ·
   All data processed locally in your browser — nothing is transmitted externally except direct Freshservice API calls you authorise
 </footer>
 
@@ -846,7 +775,7 @@ const CUSTOMER_CHECKS = {
       {id:"npg_c6", text:"NPG – BeetBox Integration — Validate voltage request and response processing via BeetBox.", sev:"high", hint:"Send test voltage request via BeetBox and confirm correct response"},
     ],
   },
-  "SPENDCC": {
+  "SPEN": {
     "DCC & HSM Validation": [
       {id:"spen_c1", text:"DCC Connection — Validate DCC connection by executing SR 7.4. Healthy if SR requests succeed.", sev:"critical", hint:"Execute SR 7.4 on the DSG server and confirm successful response"},
       {id:"spen_c2", text:"HSM Check — Validate availability of HSM modules by running ./enquiry on the DSG server.", sev:"critical", hint:"All HSM modules should respond as available"},
@@ -860,16 +789,15 @@ const CUSTOMER_CHECKS = {
 const CHECKS = {
   patching: {
     "System Health": [
-      {id:"p1", text:"All patched services / daemons restarted successfully", sev:"critical", hint:"Verify via service status or process manager"},
+      {id:"p1", text:"All patched services / MDM application restarted successfully", sev:"critical", hint:"Verify via System Console or process "},
       {id:"p2", text:"Patch version confirmed on all target nodes", sev:"critical", hint:"Run uname -r / winver / rpm -qa on each node"},
-      {id:"p3", text:"Patch applied to every node in cluster or load balancer pool", sev:"critical"},
       {id:"p4", text:"No unexpected CPU or memory spikes post-patch", sev:"high", hint:"Compare metrics against pre-change baseline"},
       {id:"p5", text:"Disk space sufficient — patch artefacts not filling volumes", sev:"medium"},
     ],
     "Application Validation": [
-      {id:"p6", text:"Application starts and responds without errors after restart", sev:"critical"},
+      {id:"p6", text:"All Application starts and responds without errors after restart", sev:"critical"},
       {id:"p7", text:"Login and authentication flows tested end-to-end", sev:"critical"},
-      {id:"p8", text:"Core business transaction executed successfully", sev:"high"},
+      {id:"p8", text:"Core business flow /transaction executed successfully", sev:"high"},
       {id:"p9", text:"Error / application logs show no new critical exceptions", sev:"high", hint:"Check logs for at least 30 minutes post-change"},
       {id:"p10", text:"Scheduled jobs and cron tasks running as expected", sev:"medium"},
     ],
@@ -882,38 +810,32 @@ const CHECKS = {
     "Connectivity": [
       {id:"i1", text:"End-to-end connectivity confirmed between integrated systems", sev:"critical"},
       {id:"i2", text:"API health check endpoint returns HTTP 200 OK", sev:"critical"},
-      {id:"i3", text:"Authentication tokens / API keys valid and not expired", sev:"critical"},
-      {id:"i4", text:"SSL/TLS certificates valid on all integration endpoints", sev:"high"},
-      {id:"i5", text:"Firewall / security group rules permit traffic on required ports", sev:"high"},
     ],
     "Data Flow": [
       {id:"i6", text:"Sample payload sent successfully and correct response received", sev:"critical", hint:"Test with both valid and edge-case payloads"},
-      {id:"i7", text:"Data mapping and field transformations produce correct output", sev:"high"},
       {id:"i8", text:"Error handling tested — invalid payload returns expected error code", sev:"high"},
-      {id:"i9", text:"Retry / dead-letter queue mechanism functioning on transient failures", sev:"medium"},
+      {id:"i9", text:"Data flow has been successfully initiated and validated across both upstream and downstream applications.", sev:"medium"},
       {id:"i10", text:"Bulk / volume test: large message batch processed without queue backup", sev:"medium"},
     ],
     "Monitoring": [
       {id:"i11", text:"Integration monitoring dashboard showing live traffic", sev:"medium"},
-      {id:"i12", text:"Failure alert triggered when integration is stopped (simulated)", sev:"medium"},
+      {id:"i12", text:"After CR implimented all monitering alert configutaion enable ", sev:"medium"},
     ]
   },
   functionality: {
     "Feature Validation": [
       {id:"f1", text:"New or modified feature works as per change specification", sev:"critical"},
-      {id:"f2", text:"All affected user roles and permission levels tested", sev:"critical"},
+      {id:"f2", text:"No New error has been register in exception table or in application log", sev:"critical"},
       {id:"f3", text:"Edge cases documented in the CR tested successfully", sev:"high"},
       {id:"f4", text:"No regression detected in adjacent features", sev:"high"},
-      {id:"f5", text:"UI changes render correctly across supported browsers / devices", sev:"medium"},
+      {id:"f5", text:"No slowness was observed in the UI after the CR deployment.", sev:"medium"},
     ],
     "Data Integrity": [
       {id:"f6", text:"Existing data unaffected by the configuration or code change", sev:"critical"},
-      {id:"f7", text:"New data entries saved, retrieved, and displayed correctly", sev:"high"},
-      {id:"f8", text:"Report outputs match expected values after change", sev:"high"},
+      {id:"f7", text:"New data entries saved(new meter creation), retrieved, and displayed correctly", sev:"high"},
     ],
     "User Experience": [
-      {id:"f9", text:"User notifications and email triggers firing correctly", sev:"medium"},
-      {id:"f10", text:"Session handling and timeout behaviour correct post-change", sev:"medium"},
+      {id:"f9", text:"User not reported any UI performce issue", sev:"medium"},
     ]
   },
   infra: {
@@ -921,12 +843,10 @@ const CHECKS = {
       {id:"n1", text:"All servers and VMs reachable via ping / health check", sev:"critical"},
       {id:"n2", text:"Load balancer health checks passing for all nodes in pool", sev:"critical"},
       {id:"n3", text:"DNS resolution correct for all affected hostnames", sev:"high"},
-      {id:"n4", text:"Failover tested: traffic routes correctly when one node removed", sev:"high"},
     ],
     "Performance": [
-      {id:"n5", text:"Response latency within agreed SLA thresholds", sev:"high"},
-      {id:"n6", text:"Throughput test confirms bandwidth not degraded", sev:"medium"},
-      {id:"n7", text:"Storage volumes have sufficient free space (>20%)", sev:"medium"},
+      {id:"n5", text:"UI Response latency within agreed SLA thresholds", sev:"high"},
+      {id:"n6", text:"Data flow  test confirms bandwidth not degraded", sev:"medium"},
     ],
     "Configuration": [
       {id:"n8", text:"Infrastructure config matches change spec (IaC diff reviewed)", sev:"high"},
@@ -935,9 +855,6 @@ const CHECKS = {
   },
   database: {
     "Schema & Data": [
-      {id:"d1", text:"Schema migration applied successfully to all target environments", sev:"critical"},
-      {id:"d2", text:"Record / row counts match expected values post-migration", sev:"critical"},
-      {id:"d3", text:"Foreign key constraints and indexes intact", sev:"high"},
       {id:"d4", text:"Sample queries return correct results", sev:"high"},
       {id:"d5", text:"No data loss confirmed (compare pre/post counts or checksums)", sev:"critical"},
     ],
@@ -953,20 +870,14 @@ const CHECKS = {
   },
   security: {
     "Access Control": [
-      {id:"s1", text:"New ACL / permission rules applied and validated", sev:"critical"},
-      {id:"s2", text:"Revoked access confirmed — affected user/service cannot authenticate", sev:"critical"},
-      {id:"s3", text:"Privileged account access restricted to authorised roles only", sev:"critical"},
+      {id:"s1", text:"No new security event generated in security_event table  ", sev:"critical"},
     ],
     "Certificates & Authentication": [
       {id:"s4", text:"New certificate validity, expiry dates, and chain confirmed", sev:"high"},
       {id:"s5", text:"Old/replaced certificate revoked in all relevant stores", sev:"high"},
       {id:"s6", text:"MFA and SSO flow tested end-to-end", sev:"high"},
     ],
-    "Audit & Compliance": [
-      {id:"s7", text:"Security event logs capturing activity under new policy", sev:"high"},
-      {id:"s8", text:"SIEM / SOAR alerts updated to reflect security change", sev:"medium"},
-      {id:"s9", text:"Vulnerability scan initiated if required by change policy", sev:"medium"},
-    ]
+    
   }
 };
 
@@ -1059,7 +970,7 @@ function readWebhookParams() {
   }
 
   // Store Freshservice connection details for post-back
-  if (ticketid) { document.getElementById('fsTicketId').value = ticketid; document.getElementById('postbackCrId').textContent = ticketid; }
+  if (ticketid) { document.getElementById('fsTicketId').value = ticketid; }
   if (domain)   { document.getElementById('fsDomain').value = domain; document.getElementById('fsDomainInput').value = domain; }
 }
 
@@ -1084,10 +995,9 @@ const COMPONENT_CHECKS = {
 
   "MDM": {
     "MDM — Service Health": [
-      {id:"mdm1", text:"MDM application service is running and responding on all nodes", sev:"critical", hint:"Check service status via admin console or systemctl"},
+      {id:"mdm1", text:"MDM application service is running and responding on all nodes", sev:"critical", hint:"Check service status via System console"},
       {id:"mdm2", text:"MDM database connectivity confirmed — no connection errors in logs", sev:"critical", hint:"Check MDM application logs for DB connection failures"},
-      {id:"mdm3", text:"MDM data ingestion pipeline processing meter reads without errors", sev:"high", hint:"Verify ingestion queue depth and error rate in MDM dashboard"},
-      {id:"mdm4", text:"MDM API endpoints responding correctly — health check returns 200 OK", sev:"critical", hint:"Hit /health or /status endpoint and confirm response"},
+      {id:"mdm3", text:"MDM data ingestion pipeline processing meter reads without errors", sev:"high", hint:"Verify KAFKA queue depth and error rate in MDM dashboard"},
     ],
     "MDM — Data Validation": [
       {id:"mdm5", text:"Meter data reads are being received and stored correctly in MDM", sev:"high", hint:"Spot check 2-3 meter reads end-to-end"},
@@ -1110,15 +1020,11 @@ const COMPONENT_CHECKS = {
     ],
     "PPE — Payment Validation": [
       {id:"ppe5", text:"Test pre-payment top-up transaction processed end-to-end successfully", sev:"critical", hint:"Execute a test top-up and confirm balance updated"},
-      {id:"ppe6", text:"Credit balance calculations correct for test meter account", sev:"critical", hint:"Verify balance before and after a test top-up"},
-      {id:"ppe7", text:"PPE to HES communication confirmed — balance updates sent correctly", sev:"high", hint:"Check PPE → HES message flow after a test top-up"},
-      {id:"ppe8", text:"Low credit alerts and emergency credit functioning correctly", sev:"high"},
+      {id:"ppe6", text:"Check file backlog from MDM DTS out to PPE in directory", sev:"critical", hint:"Validate file backlog and Performance"},
+      {id:"ppe7", text:"PPE report module loading without any issue", sev:"high", hint:"Check PPE → HES message flow after a test top-up"},
       {id:"ppe9", text:"PPE transaction logs capturing all events post-change", sev:"medium"},
     ],
-    "PPE — Reconciliation": [
-      {id:"ppe10", text:"PPE reconciliation jobs running on schedule", sev:"medium", hint:"Check reconciliation job last run timestamp"},
-      {id:"ppe11", text:"No unmatched or failed transactions in PPE exception queue", sev:"high"},
-    ]
+    
   },
 
   "HES": {
@@ -1142,7 +1048,7 @@ const COMPONENT_CHECKS = {
 
   "KAFKA": {
     "KAFKA — Broker Health": [
-      {id:"kfk1", text:"All Kafka brokers are online and in-sync (ISR count = replica count)", sev:"critical", hint:"Run kafka-broker-api-versions.sh or check Kafka Manager UI"},
+      {id:"kfk1", text:"All Kafka brokers are online and in-sync ", sev:"critical", hint:"check Kafka Manager UI"},
       {id:"kfk2", text:"Zookeeper / KRaft controller healthy and quorum established", sev:"critical", hint:"Check zookeeper status or KRaft controller logs"},
       {id:"kfk3", text:"No under-replicated partitions reported across all topics", sev:"critical", hint:"Run kafka-topics.sh --describe and check for URP"},
       {id:"kfk4", text:"Kafka disk usage within safe threshold on all brokers", sev:"high", hint:"Disk should be below 70% on all broker nodes"},
@@ -1162,20 +1068,21 @@ const COMPONENT_CHECKS = {
 
   "AMC": {
     "AMC — Service Health": [
-      {id:"amc1", text:"AMC service running and all scheduled collection tasks active", sev:"critical", hint:"Check AMC service status and task scheduler"},
-      {id:"amc2", text:"AMC connectivity to meter network confirmed", sev:"critical", hint:"Verify AMC can reach the metering network on required ports"},
-      {id:"amc3", text:"AMC data collection jobs completing without errors", sev:"critical", hint:"Check last job run status and error counts in AMC console"},
-      {id:"amc4", text:"AMC to MDM data transfer pipeline active and processing", sev:"high", hint:"Confirm data flowing from AMC into MDM ingestion queue"},
+      {id:"amc1", text:"All AMC services are running and reporting healthy status", sev:"critical", hint:"Check service status and health endpoints"},
+      {id:"amc2", text:"AMC Alfresco is reachable and loads successfully", sev:"critical", hint:"Open the Alfresco URL and verify a successful response"},
+      {id:"amc3", text:"AMC Frontoffice is reachable and loads successfully", sev:"critical", hint:"Open the Frontoffice URL and verify a successful response"},
+      {id:"amc4", text:"AMC FWO is reachable and loads successfully", sev:"high", hint:"Open the FWO URL and verify a successful response"},
     ],
-    "AMC — Collection Validation": [
-      {id:"amc5", text:"Test meter data collection executed and data received correctly", sev:"critical", hint:"Trigger on-demand collection for a test meter and verify data"},
-      {id:"amc6", text:"AMC collection success rate within acceptable threshold (>95%)", sev:"high", hint:"Check collection success/failure ratio in AMC reporting dashboard"},
-      {id:"amc7", text:"Failed collection attempts being retried and flagged correctly", sev:"high"},
-      {id:"amc8", text:"AMC data transformation and mapping producing correct output format", sev:"high", hint:"Spot check a sample of transformed records against expected schema"},
+    "AMC — Logs and Processing": [
+      {id:"amc5", text:"API, housekeeping, workflow, and correlation service logs show no unexplained errors", sev:"critical", hint:"Review exceptions and trace affected requests in the respective logs"},
+      {id:"amc6", text:"Package-request logs confirm account and work-task sync without errors", sev:"high", hint:"Verify expected sync logs and investigate exceptions"},
+      {id:"amc7", text:"Scheduled jobs and integrations completed successfully within their expected windows", sev:"high"},
+      {id:"amc8", text:"A controlled work-order retry completes successfully", sev:"high", hint:"Use an eligible work order; confirm processing in the FWO UI and workflow queue"},
     ],
     "AMC — Monitoring": [
-      {id:"amc9", text:"AMC alerts and notifications configured and active", sev:"medium"},
-      {id:"amc10", text:"AMC audit trail capturing all collection events post-change", sev:"medium"},
+      {id:"amc9", text:"Application and database resource utilization is below agreed warning and critical thresholds", sev:"medium"},
+      {id:"amc10", text:"Critical alerts are enabled, routed to the correct owners, and have been tested", sev:"medium"},
+	  {id:"amc10", text:"Critical alerts are enabled, routed to the correct owners, and have been tested", sev:"medium"},
     ]
   }
 
@@ -1388,7 +1295,7 @@ function buildDoc() {
   let doc = `
 ╔══════════════════════════════════════════════════════════════╗
 ║          POST-CHANGE SANITY TEST DOCUMENT                    ║
-║          Siemens GSW · Service Operations Practice           ║
+║          Siemens GSW · Prem Support  Practice           ║
 ╚══════════════════════════════════════════════════════════════╝
 Document Generated : ${genTime}
 Triggered Via      : ${isWebhookMode ? 'Freshservice Webhook (automated)' : 'Manual entry'}
@@ -1469,6 +1376,7 @@ END OF DOCUMENT — ${crNum} — ${customer}
 
   // Show post-back section if we have a ticket ID
   const ticketId = document.getElementById('fsTicketId').value;
+  const domain   = document.getElementById('fsDomain').value;
   if (ticketId || isWebhookMode) {
     document.getElementById('postbackSection').style.display = 'block';
   }
@@ -1476,22 +1384,20 @@ END OF DOCUMENT — ${crNum} — ${customer}
   // AUTO-SUBMIT: download .txt + open email draft automatically
   autoSubmit();
 
-  // Populate the Freshservice callback card with auto-filled values
-  const ticketId = document.getElementById('fsTicketId').value;
-  const domain   = document.getElementById('fsDomain').value;
+  // Populate the Freshservice callback card with auto-filled values (reuse ticketId/domain from above)
   if (ticketId) {
     document.getElementById('fsChangeIdInput').value = ticketId;
+  } else {
+    const crNumRaw = document.getElementById('crNumber').value || '';
+    const digitsOnly = crNumRaw.replace(/[^0-9]/g, '');
+    if (digitsOnly) document.getElementById('fsChangeIdInput').value = digitsOnly;
   }
   if (domain) {
     const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/\/$/, '');
     document.getElementById('fsDomainInput').value = cleanDomain;
   }
-  updateFsPreview();
-
-  // Set the direct link
-  const d  = document.getElementById('fsDomainInput').value || 'freshservice.com';
-  const id = document.getElementById('fsChangeIdInput').value || '';
-  document.getElementById('fsDirectLink').href = `https://${d}/a/changes/${id}`;
+  // Keep the Open-CR link dynamic
+  updateDirectLink();
 }
 
 /* ══════════════════════════════════════
@@ -1501,236 +1407,24 @@ END OF DOCUMENT — ${crNum} — ${customer}
    Body:     { body: "<html>", private: true }
 ══════════════════════════════════════ */
 
-/* Live preview update */
-function updateFsPreview() {
-  const d  = (document.getElementById('fsDomainInput').value||'').trim().replace(/^https?:\/\//,'').replace(/\/$/,'') || 'yourcompany.freshservice.com';
-  const id = (document.getElementById('fsChangeIdInput').value||'').trim() || '####';
-  const pd = document.getElementById('previewDomain');
-  const pi = document.getElementById('previewId');
-  if (pd) pd.textContent = d;
-  if (pi) pi.textContent = id;
+/* Keeps the "Open CR in Freshservice" link in sync with Domain + Change ID, pointed at the Notes tab */
+function updateDirectLink() {
+  const d  = (document.getElementById('fsDomainInput').value || 'freshservice.com').trim().replace(/^https?:\/\//,'').replace(/\/$/,'');
+  const id = (document.getElementById('fsChangeIdInput').value || '').trim();
+  const url = `https://${d}/a/changes/${id}?current_tab=notes`;
+  const link = document.getElementById('fsDirectLinkTop');
+  if (link) link.href = url;
 }
 
-/* Test connection */
-async function testFsConnection() {
-  const domain   = document.getElementById('fsDomainInput').value.trim().replace(/^https?:\/\//,'').replace(/\/$/,'');
-  const apiKey   = document.getElementById('fsApiKeyInput').value.trim();
-  const changeId = document.getElementById('fsChangeIdInput').value.trim();
-
-  if (!domain || !apiKey || !changeId) {
-    showConnResult('warn', '⚠️ Please fill Domain, API Key and Change ID first.'); return;
-  }
-
-  const btn = document.getElementById('testConnBtn');
-  document.getElementById('testConnLabel').style.display = 'none';
-  document.getElementById('testSpinner').style.display   = 'inline-block';
-  btn.disabled = true;
-
-  try {
-    const resp = await fetch(`https://${domain}/api/v2/changes/${changeId}`, {
-      method: 'GET',
-      headers: { 'Authorization': `Basic ${btoa(apiKey+':X')}`, 'Content-Type': 'application/json' }
-    });
-    if (resp.ok) {
-      const data = await resp.json();
-      const subject = (data.change||{}).subject || 'CR found';
-      showConnResult('success', `✅ Connected! CR found: "${subject}"`);
-      document.getElementById('fsConnectedBadge').style.display = 'inline-block';
-      document.getElementById('fsDirectLink').href = `https://${domain}/a/changes/${changeId}`;
-    } else if (resp.status === 401) {
-      showConnResult('error', '❌ Authentication failed — check your API key.');
-    } else if (resp.status === 404) {
-      showConnResult('error', `❌ Change #${changeId} not found — check the ID.`);
-    } else {
-      showConnResult('warn', `⚠️ HTTP ${resp.status} — check domain and credentials.`);
-    }
-  } catch(e) {
-    showConnResult('cors',
-      `⚠️ Browser CORS blocked the test (normal browser security). Credentials are likely correct — go ahead and click Send.`);
-    document.getElementById('fsConnectedBadge').style.display = 'inline-block';
-  } finally {
-    btn.disabled = false;
-    document.getElementById('testConnLabel').style.display = 'inline';
-    document.getElementById('testSpinner').style.display   = 'none';
-  }
-}
-
-function showConnResult(type, msg) {
-  const el = document.getElementById('connTestResult');
-  if (!el) return;
-  const s = {
-    success:{ bg:'var(--green-light)', color:'var(--green)', border:'var(--green)' },
-    error:  { bg:'var(--red-light)',   color:'var(--red)',   border:'var(--red)' },
-    warn:   { bg:'var(--amber-light)', color:'var(--amber)', border:'var(--amber)' },
-    cors:   { bg:'#EEF4FF',            color:'#1C4E80',      border:'#1C4E80' },
-  }[type] || { bg:'var(--amber-light)', color:'var(--amber)', border:'var(--amber)' };
-  el.style.cssText = `display:block;padding:10px 14px;border-radius:var(--radius);font-size:12px;font-weight:500;border-left:3px solid ${s.border};background:${s.bg};color:${s.color};margin-bottom:12px`;
-  el.textContent = msg;
-}
-
-/* ══ POST sanity note to Freshservice change ══ */
-async function postToFreshservice() {
-  const domain   = document.getElementById('fsDomainInput').value.trim().replace(/^https?:\/\//,'').replace(/\/$/,'');
-  const apiKey   = document.getElementById('fsApiKeyInput').value.trim();
-  const changeId = document.getElementById('fsChangeIdInput').value.trim();
-  const crNum    = document.getElementById('crNumber').value.trim();
-
-  if (!domain)   { showToast('error','Please enter your Freshservice domain.'); return; }
-  if (!apiKey)   { showToast('error','Please enter your Freshservice API key.'); return; }
-  if (!changeId) { showToast('error','Change ID is missing.'); return; }
-
-  const btn    = document.getElementById('postBtn');
-  const label  = document.getElementById('postBtnLabel');
-  const spinner= document.getElementById('postSpinner');
-  const result = document.getElementById('postbackResult');
-
-  btn.disabled = true;
-  label.style.display = 'none';
-  spinner.style.display = 'inline-block';
-  result.style.display = 'none';
-
-  const noteHTML = buildFreshserviceNoteHTML();
-  const creds    = btoa(apiKey + ':X');
-
-  try {
-    const resp = await fetch(`https://${domain}/api/v2/changes/${changeId}/notes`, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization':`Basic ${creds}` },
-      body: JSON.stringify({ body: noteHTML, private: true }),
-    });
-
-    if (resp.ok) {
-      const data   = await resp.json();
-      const noteId = (data.note||{}).id || '—';
-      showPostResult('success', `✅ Sanity result posted to CR #${changeId} as private note (ID: ${noteId})`, domain, changeId, crNum);
-    } else {
-      const err = await resp.json().catch(()=>({}));
-      throw new Error(err.description || `HTTP ${resp.status}`);
-    }
-  } catch(e) {
-    /* CORS or network failure — guide user */
-    showPostResult('cors',
-      `⚠️ Browser security (CORS) blocked the direct API call — this is normal. ` +
-      `The note text has been copied to your clipboard. ` +
-      `Please open the CR in Freshservice and paste it as a private note.`,
-      domain, changeId, crNum);
-    navigator.clipboard.writeText(docText).catch(()=>{});
-  } finally {
-    btn.disabled = false;
-    label.style.display = 'inline';
-    spinner.style.display = 'none';
-  }
-}
-
-function showPostResult(type, msg, domain, changeId, crNum) {
-  const result = document.getElementById('postbackResult');
-  result.style.display = 'block';
-  const date = new Date().toISOString().split('T')[0];
-
-  if (type === 'success') {
-    result.style.cssText = 'display:block;padding:12px 14px;border-radius:8px;font-size:13px;font-weight:500;border-left:3px solid var(--green);background:var(--green-light);color:var(--green);margin-top:12px';
-    result.textContent = msg;
-    document.getElementById('nextStepsCrNum').textContent = `${crNum}_${date}`;
-    document.getElementById('fsDirectLink').href = `https://${domain}/a/changes/${changeId}`;
-    document.getElementById('nextStepsPanel').style.display = 'block';
-    showToast('success','✅ Sanity result posted to Freshservice!');
-  } else {
-    result.style.cssText = 'display:block;padding:12px 14px;border-radius:8px;font-size:12px;font-weight:500;border-left:3px solid #1C4E80;background:#EEF4FF;color:#1C4E80;margin-top:12px';
-    result.innerHTML = `
-      <div style="margin-bottom:8px">${msg}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-        <a href="https://${domain}/a/changes/${changeId}" target="_blank"
-          style="display:inline-flex;align-items:center;gap:5px;background:#1C4E80;color:white;
-          padding:6px 12px;border-radius:6px;font-size:11px;text-decoration:none;font-weight:600">
-          Open CR in Freshservice →
-        </a>
-        <button onclick="copyDoc()"
-          style="display:inline-flex;align-items:center;gap:5px;background:var(--accent);
-          color:white;padding:6px 12px;border-radius:6px;font-size:11px;border:none;cursor:pointer;font-weight:600">
-          📋 Copy Note Text
-        </button>
-      </div>`;
-    showToast('warn','⚠️ CORS blocked — paste note manually');
-  }
-}
-
-function buildFreshserviceNoteHTML() {
-  const customer = document.getElementById('customer').value;
-  const crNum    = document.getElementById('crNumber').value;
-  const types    = selectedTypes.join(', ');
-  const comps    = selectedComps.length > 0 ? selectedComps.join(', ') : 'None';
-  const total    = Object.keys(checkState).length;
-  const done     = Object.values(checkState).filter(Boolean).length;
-  const pct      = total ? Math.round(done/total*100) : 0;
-  const failed   = total - done;
-  const genTime  = new Date().toLocaleString();
-
-  const groups = {};
-  Object.assign(groups, COMMON);
-  if (customer && CUSTOMER_CHECKS[customer]) {
-    Object.entries(CUSTOMER_CHECKS[customer]).forEach(([s,i]) => { groups[`${customer} — ${s}`] = i; });
-  }
-  selectedTypes.forEach(t => { if (CHECKS[t]) Object.assign(groups, CHECKS[t]); });
-  selectedComps.forEach(c => { if (COMPONENT_CHECKS[c]) Object.assign(groups, COMPONENT_CHECKS[c]); });
-
-  let rows = '';
-  Object.entries(groups).forEach(([grp, items]) => {
-    const isCust = customer && grp.startsWith(customer + ' —');
-    const isComp = selectedComps.some(c => grp.startsWith(c + ' —'));
-    const hdrBg    = isCust ? '#D0EEE8' : isComp ? '#FEF3C7' : '#E0F0F0';
-    const hdrColor = isCust ? '#007755' : isComp ? '#92400E' : '#006666';
-    const hdrBorder= isCust ? '#009999' : isComp ? '#D97706' : '#009999';
-    const prefix   = isCust ? '★ ' : isComp ? '⚙ ' : '';
-    rows += `<tr><td colspan="3" style="background:${hdrBg};font-weight:bold;font-size:11px;padding:6px 10px;color:${hdrColor};border-top:2px solid ${hdrBorder}">${prefix}${grp}</td></tr>`;
-    items.forEach(item => {
-      const pass = checkState[item.id];
-      const sevColor = item.sev==='critical'?'#CC2200':item.sev==='high'?'#C97A00':'#007777';
-      rows += `<tr style="background:${pass?'#F0FBF5':'#FFFBF0'}">
-        <td style="padding:5px 10px;font-size:14px;width:32px;text-align:center">${pass?'✅':'❌'}</td>
-        <td style="padding:5px 10px;font-size:12px;color:#0D1B2A">${item.text}</td>
-        <td style="padding:5px 10px;font-size:11px;font-weight:700;color:${sevColor};white-space:nowrap">${item.sev.toUpperCase()}</td>
-      </tr>`;
-    });
+/* Copy the sanity report so it can be pasted straight into the CR's Notes tab */
+function copyNoteQuick() {
+  navigator.clipboard.writeText(docText).then(() => {
+    showToast('success', "Note text copied — paste it into the CR's Notes tab!");
+  }).catch(() => {
+    const ta = document.createElement('textarea'); ta.value = docText;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('success', 'Copied!');
   });
-
-  return `<div style="font-family:Arial,sans-serif;max-width:700px;border:1px solid #D8E2EE;border-radius:8px;overflow:hidden">
-  <div style="background:#00224F;padding:12px 16px;border-bottom:3px solid #009999">
-    <div style="color:white;font-weight:bold;font-size:15px">📋 Post-Change Sanity Validation</div>
-    <div style="color:rgba(255,255,255,0.55);font-size:11px;margin-top:3px">Siemens GSW Service Operations · ${genTime}${isWebhookMode?' · Auto-triggered via Freshservice Webhook':''}</div>
-  </div>
-  <div style="padding:12px 16px;background:#F4F7FA;border-bottom:1px solid #D8E2EE">
-    <table style="width:100%;border-collapse:collapse;font-size:12px">
-      <tr>
-        <td style="color:#526070;width:130px;padding:2px 0">Customer</td><td style="font-weight:600">${customer}</td>
-        <td style="color:#526070;width:130px">Change #</td><td style="font-weight:600">${crNum}</td>
-      </tr>
-      <tr>
-        <td style="color:#526070;padding-top:6px">Change Types</td><td colspan="3" style="font-weight:600;padding-top:6px">${types}</td>
-      </tr>
-      <tr>
-        <td style="color:#526070;padding-top:6px">Components</td><td colspan="3" style="font-weight:600;padding-top:6px">${comps}</td>
-      </tr>
-    </table>
-  </div>
-  <div style="padding:10px 16px;background:${pct===100?'#D6F5E3':'#FFF0CC'};border-bottom:1px solid #D8E2EE;display:flex;align-items:center;gap:10px">
-    <span style="font-size:22px;font-weight:700;color:${pct===100?'#1A8A4A':'#C97A00'}">${pct}%</span>
-    <div>
-      <div style="font-size:13px;font-weight:600;color:${pct===100?'#1A8A4A':'#C97A00'}">${pct===100?'✅ All checks passed — CR ready to close':`⚠️ ${failed} check(s) pending — review before closing`}</div>
-      <div style="font-size:11px;color:#526070;margin-top:2px">${done} of ${total} validation checks completed</div>
-    </div>
-  </div>
-  <table style="width:100%;border-collapse:collapse">
-    <thead><tr style="background:#F4F7FA">
-      <th style="padding:7px 10px;text-align:left;font-size:11px;color:#526070;width:32px">Status</th>
-      <th style="padding:7px 10px;text-align:left;font-size:11px;color:#526070">Validation Check</th>
-      <th style="padding:7px 10px;text-align:left;font-size:11px;color:#526070">Severity</th>
-    </tr></thead>
-    <tbody>${rows}</tbody>
-  </table>
-  <div style="padding:8px 16px;background:#F4F7FA;border-top:1px solid #D8E2EE;font-size:10px;color:#8A9BB0">
-    Generated by CR Sanity Validator · Siemens GSW SOp Tool · ${isWebhookMode?'Freshservice Webhook':'Manual Mode'}
-  </div>
-</div>`;
 }
 
 /* ══ Copy / Download ══ */
@@ -1797,8 +1491,8 @@ Date           : ${date}
 Validation Result : ${pct}% complete — ${done}/${total} checks passed
 Overall Status    : ${pct === 100 ? 'ALL CHECKS PASSED — CR READY TO CLOSE' : `${failed} PENDING ITEM(S) — REVIEW REQUIRED`}
 
-Please find the full sanity test document attached to this email (SanityDoc_${crNum}_${date}.txt).
-The document has also been posted as a private note on the CR ticket in Freshservice.
+
+The document has been posted as a private note on the CR ticket in Freshservice.
 
 Next Steps:
 ${pct === 100
@@ -1806,7 +1500,7 @@ ${pct === 100
   : `⚠️  ${failed} check(s) are incomplete. Please review and resolve before closing.`}
 
 Regards,
-Service Operations Team — Siemens GSW`
+Prem Support Team — Siemens GSW`
     );
 
     const mailtoLink = `mailto:${engineerEmail}?subject=${subject}&body=${body}`;
@@ -1832,13 +1526,18 @@ function showToast(type, msg) {
   m.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3500);
-  /* ── Attach live preview listeners ── */
-  const di = document.getElementById('fsDomainInput');
-  const ci = document.getElementById('fsChangeIdInput');
-  if (di) di.addEventListener('input', updateFsPreview);
-  if (ci) ci.addEventListener('input', updateFsPreview);
-  updateFsPreview();
 }
+
+/* ══ Live field sync — Domain / Change ID always drive the direct link, live, as you type ══ */
+function initFsFields() {
+  const domainEl = document.getElementById('fsDomainInput');
+  const changeEl = document.getElementById('fsChangeIdInput');
+  if (domainEl) domainEl.addEventListener('input', updateDirectLink);
+  if (changeEl) changeEl.addEventListener('input', updateDirectLink);
+  updateDirectLink();
+}
+initFsFields();
+
 
 /* ══ Boot — read webhook params on page load ══ */
 readWebhookParams();
